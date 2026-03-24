@@ -47,7 +47,7 @@ export default function AdminShell({
               <AdminTopBar title={title} subtitle={subtitle} rightSlot={topBarRight} />
             ) : topBar}
 
-            <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-rose-100 bg-white/88 p-5 shadow-[0_14px_34px_rgba(15,23,42,0.08)] backdrop-blur-sm sm:p-6">
+            <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-rose-100 bg-white/88 p-5 shadow-[0_14px_34px_rgba(15,23,42,0.08)] backdrop-blur-sm dark:border-rose-400/25 dark:bg-[#15141c]/88 dark:shadow-[0_16px_34px_rgba(0,0,0,0.45)] sm:p-6">
               {children}
             </div>
           </div>

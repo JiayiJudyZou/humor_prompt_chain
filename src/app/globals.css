@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --background: #fff7f8;
@@ -25,4 +26,11 @@ body {
     linear-gradient(160deg, #fff8f6 0%, #fff5f8 45%, #fff3f7 100%);
   color: var(--foreground);
   font-family: var(--font-geist-sans), sans-serif;
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(244, 63, 94, 0.2) 0%, transparent 36%),
+    radial-gradient(circle at 85% 12%, rgba(236, 72, 153, 0.14) 0%, transparent 34%),
+    linear-gradient(165deg, #08090f 0%, #0f1018 45%, #13121a 100%);
 }

@@ -95,19 +95,19 @@ export default function StepList({
   return (
     <section className={className}>
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h3 className="text-lg font-semibold text-slate-900">Pipeline Steps</h3>
-        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Pipeline Steps</h3>
+        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500 dark:text-slate-400">
           reorder-enabled
         </p>
       </div>
 
       {orderedSteps.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-rose-200 bg-gradient-to-br from-rose-50 via-amber-50 to-white p-6 sm:p-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">
+        <div className="rounded-2xl border border-dashed border-rose-200 bg-gradient-to-br from-rose-50 via-amber-50 to-white p-6 dark:border-rose-300/35 dark:bg-gradient-to-br dark:from-[#15151f] dark:via-[#1d1721] dark:to-[#181620] sm:p-7">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500 dark:text-rose-300">
             Pipeline Empty
           </p>
-          <p className="mt-2 text-sm font-semibold text-slate-800">No steps configured</p>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
+          <p className="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-100">No steps configured</p>
+          <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
             Add a step above to begin defining the flavor sequence.
           </p>
         </div>
@@ -125,21 +125,21 @@ export default function StepList({
             return (
               <li
                 key={step.id}
-                className="rounded-2xl border border-rose-100 bg-white/95 p-5 shadow-[0_10px_22px_rgba(15,23,42,0.06)]"
+                className="rounded-2xl border border-rose-100 bg-white/95 p-5 shadow-[0_10px_22px_rgba(15,23,42,0.06)] dark:border-rose-400/25 dark:bg-[#171620]/95 dark:shadow-[0_12px_24px_rgba(0,0,0,0.45)]"
               >
                 <input id={viewToggleId} type="checkbox" className="peer/view sr-only" />
 
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.11em] text-slate-700">
+                      <p className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.11em] text-slate-700 dark:border-rose-300/35 dark:bg-rose-500/15 dark:text-rose-100">
                         Step {step.order_by}
                       </p>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.11em] text-slate-500">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.11em] text-slate-500 dark:text-slate-400">
                         Prompt Step
                       </p>
                     </div>
-                    <h4 className="mt-2 truncate text-base font-semibold text-slate-900 sm:text-lg">
+                    <h4 className="mt-2 truncate text-base font-semibold text-slate-900 dark:text-slate-100 sm:text-lg">
                       {getStepTitle(step)}
                     </h4>
                   </div>
@@ -147,7 +147,7 @@ export default function StepList({
                   <div className="flex items-center gap-2">
                     <label
                       htmlFor={viewToggleId}
-                      className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50"
+                      className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-300/30 dark:bg-[#10101a] dark:text-slate-200 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/12"
                     >
                       View
                     </label>
@@ -156,7 +156,7 @@ export default function StepList({
                       onClick={() =>
                         setEditingStepId((current) => (current === step.id ? null : step.id))
                       }
-                      className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50"
+                      className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-300/30 dark:bg-[#10101a] dark:text-slate-200 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/12"
                     >
                       {isEditing ? "Close" : "Edit"}
                     </button>
@@ -165,7 +165,7 @@ export default function StepList({
                       <input type="hidden" name="id" value={step.id} />
                       <button
                         type="submit"
-                        className="inline-flex items-center rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-rose-700 transition hover:border-rose-300 hover:bg-rose-50"
+                        className="inline-flex items-center rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-rose-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-300/35 dark:bg-rose-500/12 dark:text-rose-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/22"
                       >
                         Delete
                       </button>
@@ -173,54 +173,54 @@ export default function StepList({
                   </div>
                 </div>
 
-                <div className="mt-3 flex flex-wrap items-center gap-2 border-y border-rose-100 py-3">
-                  <p className="rounded-full border border-rose-100 bg-rose-50/50 px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                <div className="mt-3 flex flex-wrap items-center gap-2 border-y border-rose-100 py-3 dark:border-rose-400/20">
+                  <p className="rounded-full border border-rose-100 bg-rose-50/50 px-2.5 py-1 text-[11px] font-medium text-slate-700 dark:border-rose-300/30 dark:bg-rose-500/12 dark:text-slate-200">
                     Type: {stepType}
                   </p>
-                  <p className="rounded-full border border-rose-100 bg-rose-50/50 px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                  <p className="rounded-full border border-rose-100 bg-rose-50/50 px-2.5 py-1 text-[11px] font-medium text-slate-700 dark:border-rose-300/30 dark:bg-rose-500/12 dark:text-slate-200">
                     Input: {inputType}
                   </p>
-                  <p className="rounded-full border border-rose-100 bg-rose-50/50 px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                  <p className="rounded-full border border-rose-100 bg-rose-50/50 px-2.5 py-1 text-[11px] font-medium text-slate-700 dark:border-rose-300/30 dark:bg-rose-500/12 dark:text-slate-200">
                     Output: {outputType}
                   </p>
-                  <p className="rounded-full border border-rose-100 bg-rose-50/50 px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                  <p className="rounded-full border border-rose-100 bg-rose-50/50 px-2.5 py-1 text-[11px] font-medium text-slate-700 dark:border-rose-300/30 dark:bg-rose-500/12 dark:text-slate-200">
                     Model: {model}
                   </p>
-                  <p className="rounded-full border border-rose-100 bg-rose-50/50 px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                  <p className="rounded-full border border-rose-100 bg-rose-50/50 px-2.5 py-1 text-[11px] font-medium text-slate-700 dark:border-rose-300/30 dark:bg-rose-500/12 dark:text-slate-200">
                     Temp: {step.llm_temperature ?? "N/A"}
                   </p>
                 </div>
 
-                <div className="mt-3 rounded-xl border border-rose-100 bg-rose-50/40 p-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600">
+                <div className="mt-3 rounded-xl border border-rose-100 bg-rose-50/40 p-3 dark:border-rose-400/20 dark:bg-rose-500/8">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600 dark:text-slate-300">
                     Prompt Preview
                   </p>
-                  <p className="mt-1 max-h-[3.2rem] overflow-hidden text-sm leading-6 text-slate-700">
+                  <p className="mt-1 max-h-[3.2rem] overflow-hidden text-sm leading-6 text-slate-700 dark:text-slate-200">
                     {getPrimaryPreview(step)}
                   </p>
                 </div>
 
-                <section className="mt-3 hidden rounded-xl border border-rose-100 bg-rose-50/35 p-4 peer-checked/view:block">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600">
+                <section className="mt-3 hidden rounded-xl border border-rose-100 bg-rose-50/35 p-4 dark:border-rose-400/20 dark:bg-rose-500/8 peer-checked/view:block">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600 dark:text-slate-300">
                     System Prompt
                   </p>
-                  <p className="mt-1 whitespace-pre-wrap break-words rounded-lg border border-rose-100 bg-white/80 p-3 text-sm leading-6 text-slate-700">
+                  <p className="mt-1 whitespace-pre-wrap break-words rounded-lg border border-rose-100 bg-white/80 p-3 text-sm leading-6 text-slate-700 dark:border-rose-300/25 dark:bg-[#11111a] dark:text-slate-100">
                     {step.llm_system_prompt?.trim() ? step.llm_system_prompt : "No system prompt"}
                   </p>
 
-                  <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600">
+                  <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600 dark:text-slate-300">
                     User Prompt
                   </p>
-                  <p className="mt-1 whitespace-pre-wrap break-words rounded-lg border border-rose-100 bg-white/80 p-3 text-sm leading-6 text-slate-700">
+                  <p className="mt-1 whitespace-pre-wrap break-words rounded-lg border border-rose-100 bg-white/80 p-3 text-sm leading-6 text-slate-700 dark:border-rose-300/25 dark:bg-[#11111a] dark:text-slate-100">
                     {step.llm_user_prompt?.trim() ? step.llm_user_prompt : "No user prompt"}
                   </p>
 
                   {step.description?.trim() ? (
                     <>
-                      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600">
+                      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600 dark:text-slate-300">
                         Description / Notes
                       </p>
-                      <p className="mt-1 whitespace-pre-wrap break-words rounded-lg border border-rose-100 bg-white/80 p-3 text-sm leading-6 text-slate-700">
+                      <p className="mt-1 whitespace-pre-wrap break-words rounded-lg border border-rose-100 bg-white/80 p-3 text-sm leading-6 text-slate-700 dark:border-rose-300/25 dark:bg-[#11111a] dark:text-slate-100">
                         {step.description}
                       </p>
                     </>
@@ -228,12 +228,12 @@ export default function StepList({
                 </section>
 
                 {isEditing ? (
-                  <section className="mt-3 rounded-xl border border-rose-100 bg-rose-50/35 p-3 sm:p-4">
+                  <section className="mt-3 rounded-xl border border-rose-100 bg-rose-50/35 p-3 dark:border-rose-400/20 dark:bg-rose-500/8 sm:p-4">
                     <div className="mb-3 flex justify-end">
                       <button
                         type="button"
                         onClick={() => setEditingStepId(null)}
-                        className="inline-flex items-center rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50"
+                        className="inline-flex items-center rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-300/30 dark:bg-[#10101a] dark:text-slate-200 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/12"
                       >
                         Cancel
                       </button>
@@ -247,7 +247,7 @@ export default function StepList({
                       llmInputTypes={llmInputTypes}
                       llmOutputTypes={llmOutputTypes}
                       llmModels={llmModels}
-                      className="rounded-xl border border-rose-100 bg-white/95 p-4 shadow-none"
+                      className="rounded-xl border border-rose-100 bg-white/95 p-4 shadow-none dark:border-rose-400/25 dark:bg-[#171620]/95"
                     />
                   </section>
                 ) : null}
@@ -258,7 +258,7 @@ export default function StepList({
                     <button
                       type="submit"
                       disabled={index === 0}
-                      className="inline-flex items-center rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex items-center rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-rose-300/30 dark:bg-[#10101a] dark:text-slate-200 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/12"
                     >
                       Up
                     </button>
@@ -268,7 +268,7 @@ export default function StepList({
                     <button
                       type="submit"
                       disabled={index === orderedSteps.length - 1}
-                      className="inline-flex items-center rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex items-center rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-rose-300/30 dark:bg-[#10101a] dark:text-slate-200 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/12"
                     >
                       Down
                     </button>

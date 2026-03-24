@@ -92,8 +92,8 @@ function renderFieldValue(value: string, isChanged: boolean) {
     <pre
       className={`max-w-none whitespace-pre-wrap break-words rounded-lg border px-2.5 py-2 text-xs font-sans leading-5 ${
         isChanged
-          ? "border-amber-200 bg-amber-50/70 text-slate-800"
-          : "border-rose-100 bg-rose-50/40 text-slate-700"
+          ? "border-amber-200 bg-amber-50/70 text-slate-800 dark:border-rose-300/35 dark:bg-rose-500/12 dark:text-slate-100"
+          : "border-rose-100 bg-rose-50/40 text-slate-700 dark:border-rose-300/25 dark:bg-[#11111a] dark:text-slate-200"
       }`}
     >
       {value}
@@ -114,16 +114,16 @@ export default function FlavorStepComparisonSection({
 
   if (!compareFlavor) {
     return (
-      <section className="space-y-3 rounded-2xl border border-rose-100 bg-white p-4 sm:p-5">
+      <section className="space-y-3 rounded-2xl border border-rose-100 bg-white p-4 dark:border-rose-400/25 dark:bg-[#171620]/92 sm:p-5">
         <div>
-          <h4 className="text-lg font-semibold text-slate-900">Debug Step View</h4>
-          <p className="mt-1 text-sm text-slate-600">
+          <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Debug Step View</h4>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
             Full step fields for <span className="font-semibold">{selectedFlavor.slug}</span>.
           </p>
         </div>
 
         {orderedSelectedSteps.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-rose-200 bg-rose-50/70 px-4 py-3 text-sm text-slate-600">
+          <p className="rounded-xl border border-dashed border-rose-200 bg-rose-50/70 px-4 py-3 text-sm text-slate-600 dark:border-rose-300/35 dark:bg-rose-500/10 dark:text-slate-300">
             This flavor has no steps configured.
           </p>
         ) : (
@@ -131,15 +131,15 @@ export default function FlavorStepComparisonSection({
             {orderedSelectedSteps.map((step) => (
               <li
                 key={step.id}
-                className="rounded-xl border border-rose-100 bg-rose-50/30 p-3 sm:p-4"
+                className="rounded-xl border border-rose-100 bg-rose-50/30 p-3 dark:border-rose-400/20 dark:bg-rose-500/8 sm:p-4"
               >
-                <p className="text-sm font-semibold text-slate-900">
+                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                   Step {step.order_by} (id: {step.id})
                 </p>
                 <dl className="mt-3 grid gap-2">
                   {STEP_FIELDS.map((fieldName) => (
                     <div key={fieldName}>
-                      <dt className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600">
+                      <dt className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600 dark:text-slate-300">
                         {fieldName}
                       </dt>
                       <dd className="mt-1">
@@ -159,11 +159,11 @@ export default function FlavorStepComparisonSection({
   const pairs = buildStepPairs(orderedSelectedSteps, compareSteps);
 
   return (
-    <section className="space-y-3 rounded-2xl border border-rose-100 bg-white p-4 sm:p-5">
+    <section className="space-y-3 rounded-2xl border border-rose-100 bg-white p-4 dark:border-rose-400/25 dark:bg-[#171620]/92 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h4 className="text-lg font-semibold text-slate-900">Comparison Debug View</h4>
-          <p className="mt-1 text-sm text-slate-600">
+          <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Comparison Debug View</h4>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
             Comparing <span className="font-semibold">{selectedFlavor.slug}</span> against{" "}
             <span className="font-semibold">{compareFlavor.slug}</span>.
           </p>
@@ -171,7 +171,7 @@ export default function FlavorStepComparisonSection({
       </div>
 
       {pairs.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-rose-200 bg-rose-50/70 px-4 py-3 text-sm text-slate-600">
+        <p className="rounded-xl border border-dashed border-rose-200 bg-rose-50/70 px-4 py-3 text-sm text-slate-600 dark:border-rose-300/35 dark:bg-rose-500/10 dark:text-slate-300">
           Neither flavor has steps configured.
         </p>
       ) : (
@@ -179,13 +179,13 @@ export default function FlavorStepComparisonSection({
           {pairs.map((pair) => (
             <li
               key={`${pair.orderBy}-${pair.rowIndex}`}
-              className="rounded-xl border border-rose-100 bg-rose-50/30 p-3 sm:p-4"
+              className="rounded-xl border border-rose-100 bg-rose-50/30 p-3 dark:border-rose-400/20 dark:bg-rose-500/8 sm:p-4"
             >
-              <p className="text-sm font-semibold text-slate-900">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                 Step {pair.orderBy}
                 {pair.rowIndex > 0 ? ` (duplicate #${pair.rowIndex + 1})` : ""}
               </p>
-              <p className="mt-1 text-xs text-slate-600">
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
                 {selectedFlavor.slug} step id: {pair.selectedStep?.id ?? "missing"} |{" "}
                 {compareFlavor.slug} step id: {pair.compareStep?.id ?? "missing"}
               </p>
@@ -193,12 +193,12 @@ export default function FlavorStepComparisonSection({
               <div className="mt-3 overflow-x-auto">
                 <table className="min-w-full border-collapse">
                   <thead>
-                    <tr className="text-left text-xs uppercase tracking-[0.1em] text-slate-600">
-                      <th className="border-b border-rose-100 px-2 py-2 font-semibold">Field</th>
-                      <th className="border-b border-rose-100 px-2 py-2 font-semibold">
+                    <tr className="text-left text-xs uppercase tracking-[0.1em] text-slate-600 dark:text-slate-300">
+                      <th className="border-b border-rose-100 px-2 py-2 font-semibold dark:border-rose-400/20">Field</th>
+                      <th className="border-b border-rose-100 px-2 py-2 font-semibold dark:border-rose-400/20">
                         {selectedFlavor.slug}
                       </th>
-                      <th className="border-b border-rose-100 px-2 py-2 font-semibold">
+                      <th className="border-b border-rose-100 px-2 py-2 font-semibold dark:border-rose-400/20">
                         {compareFlavor.slug}
                       </th>
                     </tr>
@@ -214,13 +214,13 @@ export default function FlavorStepComparisonSection({
 
                       return (
                         <tr key={fieldName} className="align-top">
-                          <th className="w-44 border-b border-rose-100 px-2 py-2 text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate-700">
+                          <th className="w-44 border-b border-rose-100 px-2 py-2 text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate-700 dark:border-rose-400/20 dark:text-slate-200">
                             {fieldName}
                           </th>
-                          <td className="border-b border-rose-100 px-2 py-2">
+                          <td className="border-b border-rose-100 px-2 py-2 dark:border-rose-400/20">
                             {renderFieldValue(selectedValue, isChanged)}
                           </td>
-                          <td className="border-b border-rose-100 px-2 py-2">
+                          <td className="border-b border-rose-100 px-2 py-2 dark:border-rose-400/20">
                             {renderFieldValue(compareValue, isChanged)}
                           </td>
                         </tr>

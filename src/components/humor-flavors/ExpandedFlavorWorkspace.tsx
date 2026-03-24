@@ -46,23 +46,23 @@ export default function ExpandedFlavorWorkspace({
   llmModels,
 }: ExpandedFlavorWorkspaceProps) {
   return (
-    <div className="mt-3 rounded-2xl border border-rose-200 bg-gradient-to-b from-white via-rose-50/35 to-amber-50/40 p-4 shadow-[0_12px_28px_rgba(15,23,42,0.08)] sm:p-5">
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-rose-100 pb-4">
+    <div className="mt-3 rounded-2xl border border-rose-200 bg-gradient-to-b from-white via-rose-50/35 to-amber-50/40 p-4 shadow-[0_12px_28px_rgba(15,23,42,0.08)] dark:border-rose-300/30 dark:bg-gradient-to-b dark:from-[#13131c] dark:via-[#1a1521] dark:to-[#1d141f] dark:shadow-[0_14px_30px_rgba(0,0,0,0.5)] sm:p-5">
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-rose-100 pb-4 dark:border-rose-400/20">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500 dark:text-rose-300">
             Flavor Workspace
           </p>
-          <h3 className="mt-1 text-lg font-semibold tracking-tight text-slate-900">
+          <h3 className="mt-1 text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100">
             {flavor.slug}
           </h3>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
             {flavor.description ?? "No description"}
           </p>
         </div>
 
         <div className="text-right">
-          <p className="text-xs text-slate-500">
-            <span className="font-semibold uppercase tracking-[0.1em] text-slate-700">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            <span className="font-semibold uppercase tracking-[0.1em] text-slate-700 dark:text-slate-300">
               Updated
             </span>{" "}
             {formatDateTime(flavor.modified_datetime_utc)}
@@ -71,7 +71,7 @@ export default function ExpandedFlavorWorkspace({
             <DeleteFlavorHeaderAction humorFlavorId={humorFlavorId} />
             <Link
               href="/admin/humor-flavors"
-              className="inline-flex items-center rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50"
+              className="inline-flex items-center rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-300/35 dark:bg-[#11111a] dark:text-rose-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/15"
             >
               Collapse
             </Link>
@@ -87,7 +87,7 @@ export default function ExpandedFlavorWorkspace({
           llmInputTypes={llmInputTypes}
           llmOutputTypes={llmOutputTypes}
           llmModels={llmModels}
-          className="rounded-xl border border-rose-100 bg-white/95 p-4 shadow-none"
+          className="rounded-xl border border-rose-100 bg-white/95 p-4 shadow-none dark:border-rose-400/25 dark:bg-[#171620]/95"
         />
 
         <StepList

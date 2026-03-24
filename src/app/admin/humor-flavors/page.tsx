@@ -122,39 +122,39 @@ export default async function HumorFlavorsPage({ searchParams }: PageProps) {
       <div className="flex min-h-0 flex-1 flex-col gap-4">
         <CreateFlavorSection />
 
-        <section className="rounded-2xl border border-rose-100 bg-white/92 p-4 shadow-[0_10px_26px_rgba(15,23,42,0.06)] sm:p-5">
-          <div className="mb-4 flex flex-wrap items-end justify-between gap-3 border-b border-rose-100 pb-4">
+        <section className="rounded-2xl border border-rose-100 bg-white/92 p-4 shadow-[0_10px_26px_rgba(15,23,42,0.06)] dark:border-rose-400/25 dark:bg-[#171620]/92 dark:shadow-[0_12px_28px_rgba(0,0,0,0.45)] sm:p-5">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3 border-b border-rose-100 pb-4 dark:border-rose-400/20">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500 dark:text-rose-300">
                 Library
               </p>
-              <h2 className="mt-1 text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">
+              <h2 className="mt-1 text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-xl">
                 Humor Flavors
               </h2>
-              <p className="mt-1 text-sm text-slate-600">
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                 Select a flavor to open its step workspace.
               </p>
             </div>
-            <p className="rounded-full border border-rose-100 bg-rose-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-slate-600">
+            <p className="rounded-full border border-rose-100 bg-rose-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-slate-600 dark:border-rose-300/30 dark:bg-rose-500/15 dark:text-rose-100">
               {flavors.length} total
             </p>
           </div>
 
           {flavors.length > 0 && selectedFlavorId && !selectedFlavor ? (
-            <div className="mb-3 rounded-xl border border-dashed border-rose-200 bg-rose-50/70 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500">
+            <div className="mb-3 rounded-xl border border-dashed border-rose-200 bg-rose-50/70 p-4 dark:border-rose-300/35 dark:bg-rose-500/10">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500 dark:text-rose-300">
                 Selection Missing
               </p>
-              <p className="mt-1 text-sm text-slate-700">
+              <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">
                 The selected flavor no longer exists. Pick one from the list below.
               </p>
             </div>
           ) : null}
 
           {flavors.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-rose-200 bg-rose-50/70 p-6 text-center">
-              <p className="text-sm font-semibold text-slate-800">No humor flavors yet</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
+            <div className="rounded-2xl border border-dashed border-rose-200 bg-rose-50/70 p-6 text-center dark:border-rose-300/35 dark:bg-rose-500/10">
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">No humor flavors yet</p>
+              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
                 Create your first flavor to begin building a prompt-step pipeline.
               </p>
             </div>
@@ -176,25 +176,25 @@ export default async function HumorFlavorsPage({ searchParams }: PageProps) {
                       href={flavorHref}
                       className={`block rounded-xl border p-3 transition sm:p-3.5 ${
                         isActive
-                          ? "border-rose-300 bg-gradient-to-r from-rose-100 to-amber-50 shadow-[0_10px_22px_rgba(190,24,93,0.12)]"
-                          : "border-rose-100 bg-white hover:border-rose-200 hover:bg-rose-50/70"
+                          ? "border-rose-300 bg-gradient-to-r from-rose-100 to-amber-50 shadow-[0_10px_22px_rgba(190,24,93,0.12)] dark:border-rose-300/45 dark:bg-gradient-to-r dark:from-rose-500/20 dark:to-pink-500/14 dark:shadow-[0_10px_24px_rgba(244,63,94,0.24)]"
+                          : "border-rose-100 bg-white hover:border-rose-200 hover:bg-rose-50/70 dark:border-rose-400/20 dark:bg-[#11111a] dark:hover:border-rose-300/35 dark:hover:bg-rose-500/10"
                       }`}
                       aria-expanded={isActive}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="truncate text-base font-semibold text-slate-900">
+                          <p className="truncate text-base font-semibold text-slate-900 dark:text-slate-100">
                             {flavor.slug}
                           </p>
-                          <p className="mt-1 text-sm text-slate-600">
+                          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                             {flavor.description ?? "No description"}
                           </p>
                         </div>
                         <span
                           className={`mt-0.5 inline-flex shrink-0 rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] ${
                             isActive
-                              ? "border-rose-300 bg-white/80 text-slate-700"
-                              : "border-rose-200 bg-white text-slate-500"
+                              ? "border-rose-300 bg-white/80 text-slate-700 dark:border-rose-300/45 dark:bg-rose-500/15 dark:text-rose-100"
+                              : "border-rose-200 bg-white text-slate-500 dark:border-rose-400/30 dark:bg-[#181821] dark:text-slate-300"
                           }`}
                         >
                           {isActive ? "Collapse" : "Open"}
