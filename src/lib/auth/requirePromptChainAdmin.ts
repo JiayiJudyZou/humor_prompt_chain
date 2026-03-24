@@ -1,34 +1,35 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-
-type PromptChainAdminProfile = {
-  id: string
-  is_superadmin: boolean | null
-  is_matrix_admin: boolean | null
-}
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
 export async function requirePromptChainAdmin() {
-  const supabase = await createClient()
+  const supabase = await createClient();
 
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+    error: userError,
+  } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect('/login')
+  if (userError || !user) {
+    redirect("/login");
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, is_superadmin, is_matrix_admin')
-    .eq('id', user.id)
-    .single<PromptChainAdminProfile>()
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id, is_superadmin, is_matrix_admin")
+    .eq("id", user.id)
+    .maybeSingle();
 
-  const isAuthorized = Boolean(profile?.is_superadmin || profile?.is_matrix_admin)
-
-  if (!isAuthorized) {
-    redirect('/')
+  if (profileError) {
+    redirect("/unauthorized");
   }
 
-  return { user, profile }
+  if (!profile) {
+    redirect("/unauthorized");
+  }
+
+  if (!profile.is_superadmin && !profile.is_matrix_admin) {
+    redirect("/unauthorized");
+  }
+
+  return { user, profile };
 }

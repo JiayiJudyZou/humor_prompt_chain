@@ -10,8 +10,12 @@ export async function getHumorFlavors(): Promise<humor_flavors[]> {
   const { data, error } = await supabase
     .from('humor_flavors')
     .select('*')
-    .order('modified_datetime_utc', { ascending: false, nullsFirst: false })
+    .order('modified_datetime_utc', { ascending: false })
     .order('id', { ascending: false })
+
+  console.log('getHumorFlavors error:', error)
+  console.log('getHumorFlavors count:', data?.length ?? 0)
+  console.log('getHumorFlavors sample:', data?.slice(0, 3))
 
   if (error) {
     throw new Error(`Failed to fetch humor_flavors: ${error.message}`)
@@ -22,6 +26,8 @@ export async function getHumorFlavors(): Promise<humor_flavors[]> {
 
 export async function getHumorFlavorById(id: number): Promise<humor_flavors> {
   const supabase = await createClient()
+
+  console.log('SUPABASE URL', process.env.NEXT_PUBLIC_SUPABASE_URL)
 
   const { data, error } = await supabase
     .from('humor_flavors')
