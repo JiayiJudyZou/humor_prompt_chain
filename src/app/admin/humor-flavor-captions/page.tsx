@@ -33,6 +33,17 @@ function parseSelectedFlavorId(value: string | string[] | undefined): number | n
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 }
 
+function parseFlavorId(value: unknown): number | null {
+  if (typeof value === "number") {
+    return Number.isInteger(value) && value > 0 ? value : null;
+  }
+  if (typeof value !== "string") return null;
+  if (value.trim().length === 0) return null;
+
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
 function readCaptionText(row: CaptionRow): string | null {
   const preferredKeys = [
     "caption",
@@ -99,23 +110,15 @@ function readVisibilityStatus(row: CaptionRow): "Public" | "Private" | null {
 export default async function HumorFlavorCaptionsPage({ searchParams }: PageProps) {
   const { user, profile } = await requirePromptChainAdmin();
   const params = await searchParams;
+  const selectedFlavorId = parseSelectedFlavorId(params.selectedFlavorId);
   const flavors = await getHumorFlavors();
-
-  const rawSelectedFlavorId = Array.isArray(params.selectedFlavorId)
-    ? params.selectedFlavorId[0]
-    : params.selectedFlavorId;
-  const hasSelectedFlavorInQuery =
-    typeof rawSelectedFlavorId === "string" && rawSelectedFlavorId.trim().length > 0;
-
-  const selectedFlavorIdFromQuery = parseSelectedFlavorId(params.selectedFlavorId);
-  const selectedFlavorId = hasSelectedFlavorInQuery
-    ? selectedFlavorIdFromQuery
-    : (flavors[0]?.id ?? null);
   const selectedFlavor =
     selectedFlavorId === null
       ? null
-      : flavors.find((flavor) => flavor.id === selectedFlavorId) ?? null;
-  const selectedFlavorNumericId = selectedFlavor?.id ?? null;
+      : flavors.find((flavor) => parseFlavorId(flavor.id) === selectedFlavorId) ?? null;
+  const selectedFlavorNumericId = selectedFlavor
+    ? parseFlavorId(selectedFlavor.id)
+    : null;
 
   const captions =
     selectedFlavorNumericId === null
@@ -182,6 +185,17 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
             </p>
           </div>
 
+          {flavors.length > 0 && selectedFlavorId && !selectedFlavor ? (
+            <div className="mb-3 rounded-xl border border-dashed border-rose-200 bg-rose-50/70 p-4 dark:border-rose-300/35 dark:bg-rose-500/10">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500 dark:text-rose-300">
+                Selection Missing
+              </p>
+              <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">
+                The selected flavor no longer exists. Pick one from the list below.
+              </p>
+            </div>
+          ) : null}
+
           {flavors.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-rose-200 bg-rose-50/70 p-6 text-center dark:border-rose-300/35 dark:bg-rose-500/10">
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">No humor flavors yet</p>
@@ -192,18 +206,25 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
           ) : (
             <ul className="space-y-3">
               {flavors.map((flavor) => {
-                const isActive = flavor.id === selectedFlavorNumericId;
+                const flavorId = parseFlavorId(flavor.id);
+                const isActive =
+                  flavorId !== null &&
+                  selectedFlavorNumericId !== null &&
+                  flavorId === selectedFlavorNumericId;
+                const flavorHref = isActive
+                  ? "/admin/humor-flavor-captions"
+                  : `/admin/humor-flavor-captions?selectedFlavorId=${flavor.id}`;
 
                 return (
                   <li key={flavor.id} className="rounded-2xl">
                     <Link
-                      href={`/admin/humor-flavor-captions?selectedFlavorId=${flavor.id}`}
+                      href={flavorHref}
                       className={`block rounded-xl border p-4 transition ${
                         isActive
                           ? "border-rose-300 bg-gradient-to-r from-rose-100 to-amber-50 shadow-[0_10px_22px_rgba(190,24,93,0.12)] dark:border-rose-300/45 dark:bg-gradient-to-r dark:from-rose-500/20 dark:to-pink-500/14 dark:shadow-[0_10px_24px_rgba(244,63,94,0.24)]"
                           : "border-rose-100 bg-white hover:border-rose-200 hover:bg-rose-50/70 dark:border-rose-400/20 dark:bg-[#11111a] dark:hover:border-rose-300/35 dark:hover:bg-rose-500/10"
                       }`}
-                      aria-current={isActive ? "page" : undefined}
+                      aria-expanded={isActive}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
@@ -221,13 +242,13 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                               : "border-rose-200 bg-white text-slate-500 dark:border-rose-400/30 dark:bg-[#181821] dark:text-slate-300"
                           }`}
                         >
-                          {isActive ? "Selected" : "Open"}
+                          {isActive ? "Collapse" : "Open"}
                         </span>
                       </div>
                     </Link>
 
                     {isActive ? (
-                      <div className="mt-2 rounded-xl border border-rose-200 bg-white/85 p-4 dark:border-rose-300/30 dark:bg-[#11111a]/90 sm:p-5">
+                      <div className="-mt-px rounded-b-xl border border-rose-200 bg-white/85 p-4 dark:border-rose-300/30 dark:bg-[#11111a]/90 sm:p-5">
                         <div className="mb-4 flex items-center justify-between gap-3">
                           <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                             Captions for {flavor.slug}
