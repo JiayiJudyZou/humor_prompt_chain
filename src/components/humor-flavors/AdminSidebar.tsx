@@ -1,10 +1,6 @@
 import Link from "next/link";
 import { signOutAdmin } from "@/lib/actions/auth";
-
-type SidebarItemKey =
-  | "humor-flavors"
-  | "humor-flavor-test"
-  | "humor-flavor-captions";
+import type { SidebarItemKey } from "./sidebar-types";
 
 type SidebarItem = {
   key: SidebarItemKey;

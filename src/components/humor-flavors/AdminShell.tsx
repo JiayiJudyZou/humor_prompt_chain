@@ -1,12 +1,7 @@
 import type { ReactNode } from "react";
 import AdminSidebar from "./AdminSidebar";
 import AdminTopBar from "./AdminTopBar";
-
-type SidebarItemKey =
-  | "humor-flavors"
-  | "humor-flavor-test"
-  | "humor-flavor-captions"
-  | "humor-mix";
+import type { SidebarItemKey } from "./sidebar-types";
 
 export type AdminShellProps = {
   children: ReactNode;

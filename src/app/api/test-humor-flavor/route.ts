@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import type { humor_flavors } from "@/lib/types/humor-flavor";
 import {
   generateCaptionsForFlavor,
   generatePresignedUrl,
@@ -51,23 +50,17 @@ function extractCaptions(rawApiResponse: unknown): unknown[] {
   return [];
 }
 
-function buildResponse({
-  success,
-  humorFlavorId = null,
-  imageId = null,
-  captions = [],
-  rawApiResponse = null,
-  debug,
-  error,
-}: TestHumorFlavorResponse): TestHumorFlavorResponse {
+function buildResponse(
+  input: TestHumorFlavorResponse
+): TestHumorFlavorResponse {
   return {
-    success,
-    humorFlavorId,
-    imageId,
-    captions,
-    rawApiResponse,
-    debug,
-    ...(error ? { error } : {}),
+    success: input.success,
+    humorFlavorId: input.humorFlavorId ?? null,
+    imageId: input.imageId ?? null,
+    captions: input.captions ?? [],
+    rawApiResponse: input.rawApiResponse ?? null,
+    debug: input.debug,
+    ...(input.error ? { error: input.error } : {}),
   };
 }
 
@@ -77,14 +70,19 @@ function parseRequestFormData(formData: FormData): TestHumorFlavorRequest | null
   const imageFileValue = formData.get("imageFile");
 
   const humorFlavorId =
-    typeof humorFlavorIdValue === "string" ? Number.parseInt(humorFlavorIdValue, 10) : NaN;
+    typeof humorFlavorIdValue === "string"
+      ? Number.parseInt(humorFlavorIdValue, 10)
+      : NaN;
+
   if (!Number.isInteger(humorFlavorId) || humorFlavorId <= 0) {
     return null;
   }
 
   const imageUrl = typeof imageUrlValue === "string" ? imageUrlValue.trim() : "";
   const imageFile =
-    imageFileValue instanceof File && imageFileValue.size > 0 ? imageFileValue : null;
+    imageFileValue instanceof File && imageFileValue.size > 0
+      ? imageFileValue
+      : null;
 
   if (!imageUrl && !imageFile) {
     return null;
@@ -123,6 +121,10 @@ export async function POST(request: Request) {
       return NextResponse.json(
         buildResponse({
           success: false,
+          humorFlavorId: null,
+          imageId: null,
+          captions: [],
+          rawApiResponse: null,
           error: "Unauthorized",
           debug: {
             usedImageUrl,
@@ -148,6 +150,10 @@ export async function POST(request: Request) {
       return NextResponse.json(
         buildResponse({
           success: false,
+          humorFlavorId: null,
+          imageId: null,
+          captions: [],
+          rawApiResponse: null,
           error: "Forbidden",
           debug: {
             usedImageUrl,
@@ -165,10 +171,15 @@ export async function POST(request: Request) {
     } = await supabase.auth.getSession();
 
     const accessToken = session?.access_token;
+
     if (sessionError || !accessToken) {
       return NextResponse.json(
         buildResponse({
           success: false,
+          humorFlavorId: null,
+          imageId: null,
+          captions: [],
+          rawApiResponse: null,
           error: "Unauthorized",
           debug: {
             usedImageUrl,
@@ -187,6 +198,10 @@ export async function POST(request: Request) {
       return NextResponse.json(
         buildResponse({
           success: false,
+          humorFlavorId: null,
+          imageId: null,
+          captions: [],
+          rawApiResponse: null,
           error: "Invalid form data body",
           debug: {
             usedImageUrl,
@@ -199,10 +214,15 @@ export async function POST(request: Request) {
     }
 
     const payload = parseRequestFormData(formData);
+
     if (!payload) {
       return NextResponse.json(
         buildResponse({
           success: false,
+          humorFlavorId: null,
+          imageId: null,
+          captions: [],
+          rawApiResponse: null,
           error:
             "Invalid payload. Expected form data with humorFlavorId and either imageUrl or imageFile.",
           debug: {
@@ -223,13 +243,16 @@ export async function POST(request: Request) {
       .from("humor_flavors")
       .select("id")
       .eq("id", payload.humorFlavorId)
-      .single<Pick<humor_flavors, "id">>();
+      .single();
 
     if (flavorError || !flavor) {
       return NextResponse.json(
         buildResponse({
           success: false,
           humorFlavorId: selectedFlavorId,
+          imageId: null,
+          captions: [],
+          rawApiResponse: null,
           error: "Humor flavor not found",
           debug: {
             usedImageUrl,
@@ -258,12 +281,14 @@ export async function POST(request: Request) {
         imageUrl: cdnUrl,
         accessToken,
       });
+
       registeredImageId = registerResponse.imageId;
     } else {
       const registerResponse = await registerImageUrl({
         imageUrl: payload.imageUrl ?? "",
         accessToken,
       });
+
       registeredImageId = registerResponse.imageId;
     }
 
@@ -275,6 +300,7 @@ export async function POST(request: Request) {
         "Cannot generate captions: missing valid imageId after image registration."
       );
     }
+
     imageId = registeredImageId;
 
     if (
@@ -309,11 +335,14 @@ export async function POST(request: Request) {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unexpected server error";
+
     return NextResponse.json(
       buildResponse({
         success: false,
         humorFlavorId: selectedFlavorId,
         imageId,
+        captions: [],
+        rawApiResponse: null,
         error: message,
         debug: {
           usedImageUrl,
