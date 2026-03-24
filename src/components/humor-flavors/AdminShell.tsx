@@ -2,7 +2,11 @@ import type { ReactNode } from "react";
 import AdminSidebar from "./AdminSidebar";
 import AdminTopBar from "./AdminTopBar";
 
-type SidebarItemKey = "humor-flavors" | "humor-flavor-test" | "humor-mix";
+type SidebarItemKey =
+  | "humor-flavors"
+  | "humor-flavor-test"
+  | "humor-flavor-captions"
+  | "humor-mix";
 
 export type AdminShellProps = {
   children: ReactNode;

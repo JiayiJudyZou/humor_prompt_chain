@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { signOutAdmin } from "@/lib/actions/auth";
 
-type SidebarItemKey = "humor-flavors" | "humor-flavor-test";
+type SidebarItemKey =
+  | "humor-flavors"
+  | "humor-flavor-test"
+  | "humor-flavor-captions";
 
 type SidebarItem = {
   key: SidebarItemKey;
@@ -27,6 +30,11 @@ const sections: SidebarSection[] = [
         key: "humor-flavor-test",
         label: "Humor Flavor Test",
         href: "/admin/humor-flavor-test",
+      },
+      {
+        key: "humor-flavor-captions",
+        label: "Flavor Captions",
+        href: "/admin/humor-flavor-captions",
       },
     ],
   },
