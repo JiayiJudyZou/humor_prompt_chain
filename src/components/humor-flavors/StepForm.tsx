@@ -1,5 +1,6 @@
 "use client";
 
+import { useActionState } from "react";
 import {
   createHumorFlavorStep,
   updateHumorFlavorStep,
@@ -20,6 +21,7 @@ type StepFormProps = {
   llmInputTypes: llm_input_types[];
   llmOutputTypes: llm_output_types[];
   llmModels: llm_models[];
+  onSubmitSuccess?: () => void;
   className?: string;
 };
 
@@ -55,10 +57,18 @@ export default function StepForm({
   llmInputTypes,
   llmOutputTypes,
   llmModels,
+  onSubmitSuccess,
   className,
 }: StepFormProps) {
   const isEdit = mode === "edit";
   const action = isEdit ? updateHumorFlavorStep : createHumorFlavorStep;
+  const [, formAction] = useActionState(async (_prevState: null, formData: FormData) => {
+    await action(formData);
+    if (!isEdit) {
+      onSubmitSuccess?.();
+    }
+    return null;
+  }, null);
 
   const defaultDescription = isEdit ? (step?.description ?? "") : "";
   const defaultOrderBy = isEdit ? (step?.order_by ?? 1) : 1;
@@ -87,7 +97,7 @@ export default function StepForm({
         "rounded-2xl border border-rose-100 bg-white/90 p-5 shadow-[0_10px_26px_rgba(15,23,42,0.06)] dark:border-rose-400/25 dark:bg-[#171620]/92 dark:shadow-[0_12px_28px_rgba(0,0,0,0.45)] sm:p-6"
       }
     >
-      <form action={action} className="space-y-4">
+      <form action={formAction} className="space-y-4">
         {isEdit && step ? <input type="hidden" name="id" value={step.id} /> : null}
         <input type="hidden" name="humor_flavor_id" value={humorFlavorId} />
 

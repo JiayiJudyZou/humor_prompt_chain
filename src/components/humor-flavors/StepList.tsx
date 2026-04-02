@@ -72,6 +72,7 @@ export default function StepList({
   className,
 }: StepListProps) {
   const [editingStepId, setEditingStepId] = useState<number | null>(null);
+  const [expandedStepId, setExpandedStepId] = useState<number | null>(null);
 
   const orderedSteps = [...steps].sort((a, b) => {
     if (a.order_by !== b.order_by) return a.order_by - b.order_by;
@@ -119,16 +120,14 @@ export default function StepList({
             const inputType = inputTypeById.get(step.llm_input_type_id) ?? "Unknown";
             const outputType = outputTypeById.get(step.llm_output_type_id) ?? "Unknown";
             const model = modelById.get(step.llm_model_id) ?? "Unknown model";
-            const viewToggleId = `step-view-${step.id}`;
             const isEditing = editingStepId === step.id;
+            const isExpanded = expandedStepId === step.id;
 
             return (
               <li
                 key={step.id}
                 className="rounded-2xl border border-rose-100 bg-white/95 p-5 shadow-[0_10px_22px_rgba(15,23,42,0.06)] dark:border-rose-400/25 dark:bg-[#171620]/95 dark:shadow-[0_12px_24px_rgba(0,0,0,0.45)]"
               >
-                <input id={viewToggleId} type="checkbox" className="peer/view sr-only" />
-
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
@@ -145,12 +144,17 @@ export default function StepList({
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <label
-                      htmlFor={viewToggleId}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExpandedStepId((current) =>
+                          current === step.id ? null : step.id
+                        )
+                      }
                       className="cursor-pointer rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-300/30 dark:bg-[#10101a] dark:text-slate-200 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/12"
                     >
-                      View
-                    </label>
+                      {isExpanded ? "Hide" : "View"}
+                    </button>
                     <button
                       type="button"
                       onClick={() =>
@@ -200,32 +204,42 @@ export default function StepList({
                   </p>
                 </div>
 
-                <section className="mt-3 hidden rounded-xl border border-rose-100 bg-rose-50/35 p-4 dark:border-rose-400/20 dark:bg-rose-500/8 peer-checked/view:block">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600 dark:text-slate-300">
-                    System Prompt
-                  </p>
-                  <p className="mt-1 whitespace-pre-wrap break-words rounded-lg border border-rose-100 bg-white/80 p-3 text-sm leading-6 text-slate-700 dark:border-rose-300/25 dark:bg-[#11111a] dark:text-slate-100">
-                    {step.llm_system_prompt?.trim() ? step.llm_system_prompt : "No system prompt"}
-                  </p>
+                <div
+                  className={`grid max-w-full overflow-hidden transition-all duration-200 ease-out ${
+                    isExpanded
+                      ? "mt-3 grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
+                  }`}
+                >
+                  <section className="min-h-0 overflow-hidden rounded-xl border border-rose-100 bg-rose-50/35 p-4 dark:border-rose-400/20 dark:bg-rose-500/8">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600 dark:text-slate-300">
+                      System Prompt
+                    </p>
+                    <p className="mt-1 whitespace-pre-wrap break-words rounded-lg border border-rose-100 bg-white/80 p-3 text-sm leading-6 text-slate-700 dark:border-rose-300/25 dark:bg-[#11111a] dark:text-slate-100">
+                      {step.llm_system_prompt?.trim()
+                        ? step.llm_system_prompt
+                        : "No system prompt"}
+                    </p>
 
-                  <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600 dark:text-slate-300">
-                    User Prompt
-                  </p>
-                  <p className="mt-1 whitespace-pre-wrap break-words rounded-lg border border-rose-100 bg-white/80 p-3 text-sm leading-6 text-slate-700 dark:border-rose-300/25 dark:bg-[#11111a] dark:text-slate-100">
-                    {step.llm_user_prompt?.trim() ? step.llm_user_prompt : "No user prompt"}
-                  </p>
+                    <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600 dark:text-slate-300">
+                      User Prompt
+                    </p>
+                    <p className="mt-1 whitespace-pre-wrap break-words rounded-lg border border-rose-100 bg-white/80 p-3 text-sm leading-6 text-slate-700 dark:border-rose-300/25 dark:bg-[#11111a] dark:text-slate-100">
+                      {step.llm_user_prompt?.trim() ? step.llm_user_prompt : "No user prompt"}
+                    </p>
 
-                  {step.description?.trim() ? (
-                    <>
-                      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600 dark:text-slate-300">
-                        Description / Notes
-                      </p>
-                      <p className="mt-1 whitespace-pre-wrap break-words rounded-lg border border-rose-100 bg-white/80 p-3 text-sm leading-6 text-slate-700 dark:border-rose-300/25 dark:bg-[#11111a] dark:text-slate-100">
-                        {step.description}
-                      </p>
-                    </>
-                  ) : null}
-                </section>
+                    {step.description?.trim() ? (
+                      <>
+                        <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600 dark:text-slate-300">
+                          Description / Notes
+                        </p>
+                        <p className="mt-1 whitespace-pre-wrap break-words rounded-lg border border-rose-100 bg-white/80 p-3 text-sm leading-6 text-slate-700 dark:border-rose-300/25 dark:bg-[#11111a] dark:text-slate-100">
+                          {step.description}
+                        </p>
+                      </>
+                    ) : null}
+                  </section>
+                </div>
 
                 {isEditing ? (
                   <section className="mt-3 rounded-xl border border-rose-100 bg-rose-50/35 p-3 dark:border-rose-400/20 dark:bg-rose-500/8 sm:p-4">

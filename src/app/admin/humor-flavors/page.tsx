@@ -18,8 +18,12 @@ import {
 type PageProps = {
   searchParams: Promise<{
     selectedFlavorId?: string | string[];
+    page?: string | string[];
+    q?: string | string[];
   }>;
 };
+
+const FLAVORS_PER_PAGE = 8;
 
 function pickString(...values: Array<unknown>): string | null {
   for (const value of values) {
@@ -41,6 +45,19 @@ function parseSelectedFlavorId(
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 }
 
+function parsePageNumber(value: string | string[] | undefined): number {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (!raw) return 1;
+
+  const parsed = Number(raw);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : 1;
+}
+
+function parseSearchQuery(value: string | string[] | undefined): string {
+  const raw = Array.isArray(value) ? value[0] : value;
+  return typeof raw === "string" ? raw.trim() : "";
+}
+
 function parseFlavorId(value: unknown): number | null {
   if (typeof value === "number") {
     return Number.isInteger(value) && value > 0 ? value : null;
@@ -52,11 +69,53 @@ function parseFlavorId(value: unknown): number | null {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 }
 
+function flavorMatchesQuery(
+  flavor: { slug: string | null; description: string | null },
+  query: string
+): boolean {
+  if (!query) return true;
+  const normalizedQuery = query.toLowerCase();
+  const slug = flavor.slug?.toLowerCase() ?? "";
+  const description = flavor.description?.toLowerCase() ?? "";
+  return slug.includes(normalizedQuery) || description.includes(normalizedQuery);
+}
+
+function buildHumorFlavorsHref({
+  page,
+  selectedFlavorId,
+  q,
+}: {
+  page?: number;
+  selectedFlavorId?: number | string | null;
+  q?: string;
+}): string {
+  const search = new URLSearchParams();
+
+  if (page && page > 1) {
+    search.set("page", String(page));
+  }
+
+  if (selectedFlavorId !== null && selectedFlavorId !== undefined) {
+    search.set("selectedFlavorId", String(selectedFlavorId));
+  }
+
+  if (q) {
+    search.set("q", q);
+  }
+
+  const queryString = search.toString();
+  return queryString
+    ? `/admin/humor-flavors?${queryString}`
+    : "/admin/humor-flavors";
+}
+
 export default async function HumorFlavorsPage({ searchParams }: PageProps) {
   const { user, profile } = await requirePromptChainAdmin();
 
   const params = await searchParams;
   const selectedFlavorId = parseSelectedFlavorId(params.selectedFlavorId);
+  const requestedPage = parsePageNumber(params.page);
+  const searchQuery = parseSearchQuery(params.q);
 
   const flavors = await getHumorFlavors();
   const selectedFlavor =
@@ -67,6 +126,34 @@ export default async function HumorFlavorsPage({ searchParams }: PageProps) {
   const selectedFlavorNumericId = selectedFlavor
     ? parseFlavorId(selectedFlavor.id)
     : null;
+  const filteredFlavors = flavors.filter((flavor) =>
+    flavorMatchesQuery(flavor, searchQuery)
+  );
+  const displayFlavors =
+    selectedFlavor &&
+    !filteredFlavors.some(
+      (flavor) => parseFlavorId(flavor.id) === selectedFlavorNumericId
+    )
+      ? [selectedFlavor, ...filteredFlavors]
+      : filteredFlavors;
+  const totalPages = Math.max(1, Math.ceil(displayFlavors.length / FLAVORS_PER_PAGE));
+  const currentPage = Math.min(requestedPage, totalPages);
+  const pageStartIndex = (currentPage - 1) * FLAVORS_PER_PAGE;
+  const paginatedFlavors = displayFlavors.slice(
+    pageStartIndex,
+    pageStartIndex + FLAVORS_PER_PAGE
+  );
+  const selectedFlavorPage =
+    selectedFlavorNumericId === null
+      ? null
+      : (() => {
+          const selectedIndex = displayFlavors.findIndex(
+            (flavor) => parseFlavorId(flavor.id) === selectedFlavorNumericId
+          );
+          return selectedIndex >= 0
+            ? Math.floor(selectedIndex / FLAVORS_PER_PAGE) + 1
+            : null;
+        })();
 
   const steps = selectedFlavorNumericId
     ? await getHumorFlavorSteps(selectedFlavorNumericId)
@@ -136,9 +223,39 @@ export default async function HumorFlavorsPage({ searchParams }: PageProps) {
               </p>
             </div>
             <p className="rounded-full border border-rose-100 bg-rose-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-slate-600 dark:border-rose-300/30 dark:bg-rose-500/15 dark:text-rose-100">
-              {flavors.length} total
+              {displayFlavors.length} shown
             </p>
           </div>
+
+          <form action="/admin/humor-flavors" method="get" className="mb-4">
+            {selectedFlavorNumericId ? (
+              <input
+                type="hidden"
+                name="selectedFlavorId"
+                value={selectedFlavorNumericId}
+              />
+            ) : null}
+            <div className="flex items-center gap-2 rounded-xl border border-rose-100 bg-rose-50/70 p-2 dark:border-rose-300/25 dark:bg-rose-500/10">
+              <input
+                type="text"
+                name="q"
+                defaultValue={searchQuery}
+                placeholder="Search humor flavors..."
+                className="h-10 w-full rounded-lg border border-rose-100 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-300 focus:ring-2 focus:ring-rose-200 dark:border-rose-300/30 dark:bg-[#11111a] dark:text-slate-100 dark:placeholder:text-slate-400 dark:focus:border-rose-300/50 dark:focus:ring-rose-400/30"
+              />
+              {searchQuery ? (
+                <Link
+                  href={buildHumorFlavorsHref({
+                    page: selectedFlavorPage ?? undefined,
+                    selectedFlavorId: selectedFlavorNumericId,
+                  })}
+                  className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg border border-rose-200 bg-white px-3 text-xs font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-400/30 dark:bg-[#181821] dark:text-slate-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/10"
+                >
+                  Clear
+                </Link>
+              ) : null}
+            </div>
+          </form>
 
           {flavors.length > 0 && selectedFlavorId && !selectedFlavor ? (
             <div className="mb-3 rounded-xl border border-dashed border-rose-200 bg-rose-50/70 p-4 dark:border-rose-300/35 dark:bg-rose-500/10">
@@ -158,17 +275,34 @@ export default async function HumorFlavorsPage({ searchParams }: PageProps) {
                 Create your first flavor to begin building a prompt-step pipeline.
               </p>
             </div>
+          ) : displayFlavors.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-rose-200 bg-rose-50/70 p-6 text-center dark:border-rose-300/35 dark:bg-rose-500/10">
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                No matching humor flavors
+              </p>
+              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                Try another keyword for slug or description.
+              </p>
+            </div>
           ) : (
-            <ul className="space-y-3">
-              {flavors.map((flavor) => {
+            <>
+              <ul className="space-y-3">
+                {paginatedFlavors.map((flavor) => {
                 const flavorId = parseFlavorId(flavor.id);
                 const isActive =
                   flavorId !== null &&
                   selectedFlavorNumericId !== null &&
                   flavorId === selectedFlavorNumericId;
                 const flavorHref = isActive
-                  ? "/admin/humor-flavors"
-                  : `/admin/humor-flavors?selectedFlavorId=${flavor.id}`;
+                  ? buildHumorFlavorsHref({
+                      page: currentPage,
+                      q: searchQuery || undefined,
+                    })
+                  : buildHumorFlavorsHref({
+                      page: currentPage,
+                      selectedFlavorId: flavor.id,
+                      q: searchQuery || undefined,
+                    });
 
                 return (
                   <li key={flavor.id} className="rounded-2xl">
@@ -215,8 +349,57 @@ export default async function HumorFlavorsPage({ searchParams }: PageProps) {
                     ) : null}
                   </li>
                 );
-              })}
-            </ul>
+                })}
+              </ul>
+
+              {totalPages > 1 ? (
+                <div className="mt-4 flex items-center justify-center gap-2 border-t border-rose-100 pt-4 dark:border-rose-400/20">
+                  {currentPage > 1 ? (
+                    <Link
+                      href={buildHumorFlavorsHref({
+                        page: currentPage - 1,
+                        selectedFlavorId:
+                          selectedFlavorPage === currentPage - 1
+                            ? selectedFlavorNumericId
+                            : null,
+                        q: searchQuery || undefined,
+                      })}
+                      className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-400/30 dark:bg-[#181821] dark:text-slate-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/10"
+                    >
+                      Previous
+                    </Link>
+                  ) : (
+                    <span className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-100 bg-rose-50/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400 dark:border-rose-400/20 dark:bg-rose-500/10 dark:text-slate-400">
+                      Previous
+                    </span>
+                  )}
+
+                  <p className="rounded-full border border-rose-100 bg-rose-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 dark:border-rose-300/30 dark:bg-rose-500/15 dark:text-rose-100">
+                    Page {currentPage} / {totalPages}
+                  </p>
+
+                  {currentPage < totalPages ? (
+                    <Link
+                      href={buildHumorFlavorsHref({
+                        page: currentPage + 1,
+                        selectedFlavorId:
+                          selectedFlavorPage === currentPage + 1
+                            ? selectedFlavorNumericId
+                            : null,
+                        q: searchQuery || undefined,
+                      })}
+                      className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-400/30 dark:bg-[#181821] dark:text-slate-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/10"
+                    >
+                      Next
+                    </Link>
+                  ) : (
+                    <span className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-100 bg-rose-50/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400 dark:border-rose-400/20 dark:bg-rose-500/10 dark:text-slate-400">
+                      Next
+                    </span>
+                  )}
+                </div>
+              ) : null}
+            </>
           )}
         </section>
       </div>

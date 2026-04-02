@@ -8,12 +8,15 @@ import { getHumorFlavors } from "@/lib/queries/humor-flavors";
 type PageProps = {
   searchParams: Promise<{
     selectedFlavorId?: string | string[];
+    page?: string | string[];
+    q?: string | string[];
   }>;
 };
 
 type CaptionRow = Awaited<
   ReturnType<typeof getCaptionsByHumorFlavorId>
 >[number];
+const CAPTIONS_PER_PAGE = 10;
 
 function pickString(...values: Array<unknown>): string | null {
   for (const value of values) {
@@ -33,6 +36,48 @@ function parseSelectedFlavorId(value: string | string[] | undefined): number | n
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 }
 
+function parsePageNumber(value: string | string[] | undefined): number {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (!raw) return 1;
+
+  const parsed = Number(raw);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : 1;
+}
+
+function parseSearchQuery(value: string | string[] | undefined): string {
+  const raw = Array.isArray(value) ? value[0] : value;
+  return typeof raw === "string" ? raw.trim() : "";
+}
+
+function buildCaptionsHref({
+  selectedFlavorId,
+  page,
+  q,
+}: {
+  selectedFlavorId?: number | string | null;
+  page?: number;
+  q?: string;
+}): string {
+  const search = new URLSearchParams();
+
+  if (selectedFlavorId !== null && selectedFlavorId !== undefined) {
+    search.set("selectedFlavorId", String(selectedFlavorId));
+  }
+
+  if (page && page > 1) {
+    search.set("page", String(page));
+  }
+
+  if (q) {
+    search.set("q", q);
+  }
+
+  const queryString = search.toString();
+  return queryString
+    ? `/admin/humor-flavor-captions?${queryString}`
+    : "/admin/humor-flavor-captions";
+}
+
 function parseFlavorId(value: unknown): number | null {
   if (typeof value === "number") {
     return Number.isInteger(value) && value > 0 ? value : null;
@@ -42,6 +87,17 @@ function parseFlavorId(value: unknown): number | null {
 
   const parsed = Number(value);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+function flavorMatchesQuery(
+  flavor: { slug: string | null; description: string | null },
+  query: string
+): boolean {
+  if (!query) return true;
+  const normalizedQuery = query.toLowerCase();
+  const slug = flavor.slug?.toLowerCase() ?? "";
+  const description = flavor.description?.toLowerCase() ?? "";
+  return slug.includes(normalizedQuery) || description.includes(normalizedQuery);
 }
 
 function readCaptionText(row: CaptionRow): string | null {
@@ -111,6 +167,8 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
   const { user, profile } = await requirePromptChainAdmin();
   const params = await searchParams;
   const selectedFlavorId = parseSelectedFlavorId(params.selectedFlavorId);
+  const requestedPage = parsePageNumber(params.page);
+  const searchQuery = parseSearchQuery(params.q);
   const flavors = await getHumorFlavors();
   const selectedFlavor =
     selectedFlavorId === null
@@ -119,11 +177,31 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
   const selectedFlavorNumericId = selectedFlavor
     ? parseFlavorId(selectedFlavor.id)
     : null;
+  const filteredFlavors = flavors.filter((flavor) =>
+    flavorMatchesQuery(flavor, searchQuery)
+  );
+  const displayFlavors =
+    selectedFlavor &&
+    !filteredFlavors.some(
+      (flavor) => parseFlavorId(flavor.id) === selectedFlavorNumericId
+    )
+      ? [selectedFlavor, ...filteredFlavors]
+      : filteredFlavors;
 
   const captions =
     selectedFlavorNumericId === null
       ? []
       : await getCaptionsByHumorFlavorId(selectedFlavorNumericId);
+  const totalCaptionPages = Math.max(
+    1,
+    Math.ceil(captions.length / CAPTIONS_PER_PAGE)
+  );
+  const currentCaptionPage = Math.min(requestedPage, totalCaptionPages);
+  const captionStartIndex = (currentCaptionPage - 1) * CAPTIONS_PER_PAGE;
+  const paginatedCaptions = captions.slice(
+    captionStartIndex,
+    captionStartIndex + CAPTIONS_PER_PAGE
+  );
 
   const adminEmail = user.email ?? "unknown-admin";
   const userMetadata =
@@ -181,9 +259,38 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
               </p>
             </div>
             <p className="rounded-full border border-rose-100 bg-rose-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-slate-600 dark:border-rose-300/30 dark:bg-rose-500/15 dark:text-rose-100">
-              {flavors.length} total
+              {displayFlavors.length} shown
             </p>
           </div>
+
+          <form action="/admin/humor-flavor-captions" method="get" className="mb-4">
+            {selectedFlavorNumericId ? (
+              <input
+                type="hidden"
+                name="selectedFlavorId"
+                value={selectedFlavorNumericId}
+              />
+            ) : null}
+            <div className="flex items-center gap-2 rounded-xl border border-rose-100 bg-rose-50/70 p-2 dark:border-rose-300/25 dark:bg-rose-500/10">
+              <input
+                type="text"
+                name="q"
+                defaultValue={searchQuery}
+                placeholder="Search humor flavors..."
+                className="h-10 w-full rounded-lg border border-rose-100 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-300 focus:ring-2 focus:ring-rose-200 dark:border-rose-300/30 dark:bg-[#11111a] dark:text-slate-100 dark:placeholder:text-slate-400 dark:focus:border-rose-300/50 dark:focus:ring-rose-400/30"
+              />
+              {searchQuery ? (
+                <Link
+                  href={buildCaptionsHref({
+                    selectedFlavorId: selectedFlavorNumericId,
+                  })}
+                  className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg border border-rose-200 bg-white px-3 text-xs font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-400/30 dark:bg-[#181821] dark:text-slate-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/10"
+                >
+                  Clear
+                </Link>
+              ) : null}
+            </div>
+          </form>
 
           {flavors.length > 0 && selectedFlavorId && !selectedFlavor ? (
             <div className="mb-3 rounded-xl border border-dashed border-rose-200 bg-rose-50/70 p-4 dark:border-rose-300/35 dark:bg-rose-500/10">
@@ -203,17 +310,29 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                 Create flavors first in the Humor Flavors admin page.
               </p>
             </div>
+          ) : displayFlavors.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-rose-200 bg-rose-50/70 p-6 text-center dark:border-rose-300/35 dark:bg-rose-500/10">
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                No matching humor flavors
+              </p>
+              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                Try another keyword for slug or description.
+              </p>
+            </div>
           ) : (
             <ul className="space-y-3">
-              {flavors.map((flavor) => {
+              {displayFlavors.map((flavor) => {
                 const flavorId = parseFlavorId(flavor.id);
                 const isActive =
                   flavorId !== null &&
                   selectedFlavorNumericId !== null &&
                   flavorId === selectedFlavorNumericId;
                 const flavorHref = isActive
-                  ? "/admin/humor-flavor-captions"
-                  : `/admin/humor-flavor-captions?selectedFlavorId=${flavor.id}`;
+                  ? buildCaptionsHref({ q: searchQuery || undefined })
+                  : buildCaptionsHref({
+                      selectedFlavorId: flavor.id,
+                      q: searchQuery || undefined,
+                    });
 
                 return (
                   <li key={flavor.id} className="rounded-2xl">
@@ -265,8 +384,9 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                             </p>
                           </div>
                         ) : (
-                          <ul className="space-y-2.5">
-                            {captions.map((captionRow, index) => {
+                          <>
+                            <ul className="space-y-2.5">
+                              {paginatedCaptions.map((captionRow, index) => {
                               const captionText = readCaptionText(captionRow);
                               const formattedCreatedDate = formatUtcDate(
                                 captionRow.created_datetime_utc
@@ -279,7 +399,7 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                                   className="rounded-xl border border-rose-100 bg-gradient-to-r from-white to-rose-50/40 p-4 shadow-[0_6px_16px_rgba(15,23,42,0.04)] dark:border-rose-400/20 dark:bg-gradient-to-r dark:from-[#13131c] dark:to-[#1f1622] dark:shadow-[0_8px_20px_rgba(0,0,0,0.38)]"
                                 >
                                   <p className="text-xs font-semibold uppercase tracking-[0.1em] text-rose-500 dark:text-rose-300">
-                                    Caption {index + 1}
+                                    Caption {captionStartIndex + index + 1}
                                   </p>
                                   <p className="mt-2 whitespace-pre-wrap text-[15px] leading-7 text-slate-900 dark:text-slate-100">
                                     {captionText ?? "No readable caption text field found."}
@@ -301,8 +421,51 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                                   </div>
                                 </li>
                               );
-                            })}
-                          </ul>
+                              })}
+                            </ul>
+
+                            {totalCaptionPages > 1 ? (
+                              <div className="mt-4 flex items-center justify-center gap-2 border-t border-rose-100 pt-4 dark:border-rose-400/20">
+                                {currentCaptionPage > 1 ? (
+                                  <Link
+                                    href={buildCaptionsHref({
+                                      selectedFlavorId: selectedFlavorNumericId,
+                                      page: currentCaptionPage - 1,
+                                      q: searchQuery || undefined,
+                                    })}
+                                    className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-400/30 dark:bg-[#181821] dark:text-slate-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/10"
+                                  >
+                                    Previous
+                                  </Link>
+                                ) : (
+                                  <span className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-100 bg-rose-50/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400 dark:border-rose-400/20 dark:bg-rose-500/10 dark:text-slate-400">
+                                    Previous
+                                  </span>
+                                )}
+
+                                <p className="rounded-full border border-rose-100 bg-rose-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 dark:border-rose-300/30 dark:bg-rose-500/15 dark:text-rose-100">
+                                  Page {currentCaptionPage} / {totalCaptionPages}
+                                </p>
+
+                                {currentCaptionPage < totalCaptionPages ? (
+                                  <Link
+                                    href={buildCaptionsHref({
+                                      selectedFlavorId: selectedFlavorNumericId,
+                                      page: currentCaptionPage + 1,
+                                      q: searchQuery || undefined,
+                                    })}
+                                    className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-400/30 dark:bg-[#181821] dark:text-slate-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/10"
+                                  >
+                                    Next
+                                  </Link>
+                                ) : (
+                                  <span className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-100 bg-rose-50/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400 dark:border-rose-400/20 dark:bg-rose-500/10 dark:text-slate-400">
+                                    Next
+                                  </span>
+                                )}
+                              </div>
+                            ) : null}
+                          </>
                         )}
                       </div>
                     ) : null}

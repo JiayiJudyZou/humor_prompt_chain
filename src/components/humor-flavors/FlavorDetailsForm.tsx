@@ -1,23 +1,27 @@
 "use client";
 
 import { useActionState } from "react";
-import { deleteHumorFlavor, updateHumorFlavor } from "@/lib/actions/humor-flavors";
-import type { DeleteHumorFlavorResult } from "@/lib/actions/humor-flavors";
+import { updateHumorFlavor } from "@/lib/actions/humor-flavors";
 import type { humor_flavors } from "@/lib/types/humor-flavor";
 
 type FlavorDetailsFormProps = {
   flavor: humor_flavors;
+  onCancel?: () => void;
+  onSubmitSuccess?: () => void;
   className?: string;
 };
 
 export default function FlavorDetailsForm({
   flavor,
+  onCancel,
+  onSubmitSuccess,
   className,
 }: FlavorDetailsFormProps) {
-  const [deleteState, deleteAction, deletePending] = useActionState<
-    DeleteHumorFlavorResult | null,
-    FormData
-  >(deleteHumorFlavor, null);
+  const [, formAction] = useActionState(async (_prevState: null, formData: FormData) => {
+    await updateHumorFlavor(formData);
+    onSubmitSuccess?.();
+    return null;
+  }, null);
 
   return (
     <section
@@ -36,7 +40,7 @@ export default function FlavorDetailsForm({
         </p>
       </div>
 
-      <form action={updateHumorFlavor} className="space-y-4">
+      <form action={formAction} className="space-y-4">
         <input type="hidden" name="id" value={flavor.id} />
 
         <div className="space-y-1.5">
@@ -80,26 +84,17 @@ export default function FlavorDetailsForm({
           >
             Save Changes
           </button>
+          {onCancel ? (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="inline-flex items-center rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-300/35 dark:bg-[#10101a] dark:text-slate-200 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/12"
+            >
+              Cancel
+            </button>
+          ) : null}
         </div>
       </form>
-
-      <div className="mt-5 border-t border-rose-100 pt-4 dark:border-rose-400/20">
-        <form action={deleteAction} className="space-y-2">
-          <input type="hidden" name="id" value={flavor.id} />
-          {deleteState?.ok === false ? (
-            <p className="text-sm text-rose-700 dark:text-rose-300" role="status" aria-live="polite">
-              {deleteState.message}
-            </p>
-          ) : null}
-          <button
-            type="submit"
-            disabled={deletePending}
-            className="inline-flex items-center rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-rose-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-300/35 dark:bg-rose-500/12 dark:text-rose-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/22"
-          >
-            Delete Flavor
-          </button>
-        </form>
-      </div>
     </section>
   );
 }
