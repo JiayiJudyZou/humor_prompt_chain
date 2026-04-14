@@ -137,3 +137,148 @@ export async function deleteHumorFlavor(
   revalidatePath("/admin/humor-flavors");
   redirect("/admin/humor-flavors");
 }
+
+type MinimalSupabaseClient = Awaited<ReturnType<typeof createClient>>;
+
+function isDuplicateSlugError(error: { code?: string; message: string; details?: string | null }) {
+  return (
+    error.code === "23505" &&
+    (error.message.includes("humor_flavors_slug_key") || error.details?.includes("(slug)"))
+  );
+}
+
+async function generateUniqueCopySlug(
+  supabase: MinimalSupabaseClient,
+  sourceSlug: string,
+): Promise<string> {
+  const baseSlug = `${sourceSlug}-copy`;
+
+  for (let suffix = 1; suffix <= 200; suffix += 1) {
+    const candidate = suffix === 1 ? baseSlug : `${baseSlug}-${suffix}`;
+    const { data, error } = await supabase
+      .from("humor_flavors")
+      .select("id")
+      .eq("slug", candidate)
+      .limit(1);
+
+    if (error) {
+      throw new Error(`Failed to validate humor flavor slug "${candidate}": ${error.message}`);
+    }
+
+    if (!data || data.length === 0) {
+      return candidate;
+    }
+  }
+
+  throw new Error(`Unable to generate a unique copy slug for "${sourceSlug}"`);
+}
+
+export type DuplicateHumorFlavorResult =
+  | { ok: true }
+  | { ok: false; message: string };
+
+export async function duplicateHumorFlavor(
+  _prevState: DuplicateHumorFlavorResult | null,
+  formData: FormData,
+): Promise<DuplicateHumorFlavorResult> {
+  const { user } = await requirePromptChainAdmin();
+  const supabase = await createClient();
+  const modified_datetime_utc = new Date().toISOString();
+
+  const sourceFlavorId = getRequiredId(formData);
+
+  const { data: sourceFlavor, error: sourceFlavorError } = await supabase
+    .from("humor_flavors")
+    .select("id, slug, description")
+    .eq("id", sourceFlavorId)
+    .single();
+
+  if (sourceFlavorError || !sourceFlavor) {
+    return {
+      ok: false,
+      message: "Unable to duplicate this flavor right now. Please try again.",
+    };
+  }
+
+  const { data: sourceSteps, error: sourceStepsError } = await supabase
+    .from("humor_flavor_steps")
+    .select("*")
+    .eq("humor_flavor_id", sourceFlavorId)
+    .order("order_by", { ascending: true })
+    .order("id", { ascending: true });
+
+  if (sourceStepsError) {
+    return {
+      ok: false,
+      message: "Unable to duplicate this flavor right now. Please try again.",
+    };
+  }
+
+  let copiedFlavorId: number | null = null;
+
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const copiedSlug = await generateUniqueCopySlug(supabase, sourceFlavor.slug);
+
+    const { data: copiedFlavor, error: copiedFlavorError } = await supabase
+      .from("humor_flavors")
+      .insert({
+        slug: copiedSlug,
+        description: sourceFlavor.description,
+        created_by_user_id: user.id,
+        modified_by_user_id: user.id,
+        modified_datetime_utc,
+      })
+      .select("id")
+      .single();
+
+    if (!copiedFlavorError && copiedFlavor) {
+      copiedFlavorId = copiedFlavor.id;
+      break;
+    }
+
+    if (!copiedFlavorError || !isDuplicateSlugError(copiedFlavorError)) {
+      return {
+        ok: false,
+        message: "Unable to duplicate this flavor right now. Please try again.",
+      };
+    }
+  }
+
+  if (!copiedFlavorId) {
+    return {
+      ok: false,
+      message: "Unable to duplicate this flavor right now. Please try again.",
+    };
+  }
+
+  if (sourceSteps && sourceSteps.length > 0) {
+    const { error: copiedStepsError } = await supabase.from("humor_flavor_steps").insert(
+      sourceSteps.map((step) => ({
+        humor_flavor_id: copiedFlavorId,
+        llm_temperature: step.llm_temperature,
+        order_by: step.order_by,
+        llm_input_type_id: step.llm_input_type_id,
+        llm_output_type_id: step.llm_output_type_id,
+        llm_model_id: step.llm_model_id,
+        humor_flavor_step_type_id: step.humor_flavor_step_type_id,
+        llm_system_prompt: step.llm_system_prompt,
+        llm_user_prompt: step.llm_user_prompt,
+        description: step.description,
+        created_by_user_id: user.id,
+        modified_by_user_id: user.id,
+        modified_datetime_utc,
+      })),
+    );
+
+    if (copiedStepsError) {
+      await supabase.from("humor_flavors").delete().eq("id", copiedFlavorId);
+      return {
+        ok: false,
+        message: "Unable to duplicate this flavor right now. Please try again.",
+      };
+    }
+  }
+
+  revalidatePath("/admin/humor-flavors");
+  return { ok: true };
+}

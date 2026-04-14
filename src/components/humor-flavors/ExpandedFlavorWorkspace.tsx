@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import DeleteFlavorHeaderAction from "./DeleteFlavorHeaderAction";
+import DuplicateFlavorHeaderAction from "./DuplicateFlavorHeaderAction";
 import FlavorDetailsForm from "./FlavorDetailsForm";
 import StepForm from "./StepForm";
 import StepList from "./StepList";
@@ -89,6 +90,7 @@ export default function ExpandedFlavorWorkspace({
             >
               Edit Flavor
             </button>
+            <DuplicateFlavorHeaderAction humorFlavorId={humorFlavorId} />
             <DeleteFlavorHeaderAction humorFlavorId={humorFlavorId} />
             <Link
               href="/admin/humor-flavors"
