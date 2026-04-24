@@ -134,7 +134,7 @@ export default async function HumorFlavorTestPage({ searchParams }: PageProps) {
       topBar={null}
     >
       <div className="flex h-full min-h-0 flex-1 flex-col gap-5">
-        <section className="rounded-2xl border border-rose-100 bg-white/90 p-5 shadow-[0_10px_26px_rgba(15,23,42,0.06)] dark:border-rose-400/25 dark:bg-[#171620]/92 dark:shadow-[0_12px_28px_rgba(0,0,0,0.45)] sm:p-6">
+        <section className="admin-surface p-5 sm:p-6">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
             Humor Flavor Test
           </h1>
@@ -146,7 +146,7 @@ export default async function HumorFlavorTestPage({ searchParams }: PageProps) {
 
         <section className="flex min-h-0 flex-1 flex-col gap-5 xl:flex-row">
           <div className="min-h-0 xl:w-80 xl:shrink-0">
-            <div className="flex h-full min-h-0 flex-col overflow-y-auto rounded-2xl border border-rose-100 bg-white/90 p-5 shadow-[0_10px_26px_rgba(15,23,42,0.06)] dark:border-rose-400/25 dark:bg-[#171620]/92 dark:shadow-[0_12px_28px_rgba(0,0,0,0.45)]">
+            <div className="admin-surface flex h-full min-h-0 flex-col overflow-y-auto p-5">
               <div className="mb-4">
                 <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Flavors</h2>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -162,20 +162,20 @@ export default async function HumorFlavorTestPage({ searchParams }: PageProps) {
                     value={selectedFlavorId}
                   />
                 ) : null}
-                <div className="flex items-center gap-2 rounded-xl border border-rose-100 bg-rose-50/70 p-2 dark:border-rose-300/25 dark:bg-rose-500/10">
+                <div className="admin-surface-subtle flex items-center gap-2 p-2">
                   <input
                     type="text"
                     name="q"
                     defaultValue={searchQuery}
                     placeholder="Search humor flavors..."
-                    className="h-10 w-full rounded-lg border border-rose-100 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-300 focus:ring-2 focus:ring-rose-200 dark:border-rose-300/30 dark:bg-[#11111a] dark:text-slate-100 dark:placeholder:text-slate-400 dark:focus:border-rose-300/50 dark:focus:ring-rose-400/30"
+                    className="admin-input h-10 rounded-lg"
                   />
                   {searchQuery ? (
                     <Link
                       href={buildFlavorTestHref({
                         selectedFlavorId,
                       })}
-                      className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg border border-rose-200 bg-white px-3 text-xs font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-400/30 dark:bg-[#181821] dark:text-slate-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/10"
+                      className="admin-button-secondary h-10 shrink-0 rounded-lg px-3 text-xs uppercase tracking-[0.08em]"
                     >
                       Clear
                     </Link>
@@ -184,7 +184,7 @@ export default async function HumorFlavorTestPage({ searchParams }: PageProps) {
               </form>
 
               {flavors.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-rose-200 bg-rose-50/70 p-5 text-center dark:border-rose-300/35 dark:bg-rose-500/10">
+                <div className="admin-empty p-5">
                   <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                     No humor flavors yet
                   </p>
@@ -193,7 +193,7 @@ export default async function HumorFlavorTestPage({ searchParams }: PageProps) {
                   </p>
                 </div>
               ) : filteredFlavors.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-rose-200 bg-rose-50/70 p-5 text-center dark:border-rose-300/35 dark:bg-rose-500/10">
+                <div className="admin-empty p-5">
                   <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                     No matching humor flavors
                   </p>
@@ -214,10 +214,10 @@ export default async function HumorFlavorTestPage({ searchParams }: PageProps) {
                               selectedFlavorId: flavor.id,
                               q: searchQuery || undefined,
                             })}
-                            className={`block rounded-xl border p-3 transition ${
+                            className={`block rounded-xl p-3 transition duration-200 ${
                               isActive
-                                ? "border-rose-200 bg-rose-100/75 shadow-[0_8px_20px_rgba(190,24,93,0.10)] dark:border-rose-300/45 dark:bg-rose-500/20 dark:shadow-[0_8px_22px_rgba(244,63,94,0.24)]"
-                                : "border-rose-100 bg-white hover:border-rose-200 hover:bg-rose-50/70 dark:border-rose-400/20 dark:bg-[#11111a] dark:hover:border-rose-300/35 dark:hover:bg-rose-500/10"
+                                ? "bg-gradient-to-r from-rose-100/90 to-amber-50/80 shadow-lg shadow-rose-900/15 dark:from-rose-500/24 dark:to-pink-500/16 dark:shadow-rose-900/35"
+                                : "bg-white/85 hover:-translate-y-0.5 hover:bg-rose-50/70 hover:shadow-md hover:shadow-rose-900/10 dark:bg-[#11111a] dark:hover:bg-rose-500/10 dark:hover:shadow-rose-900/30"
                             }`}
                           >
                             <p className="font-semibold text-slate-900 dark:text-slate-100">{flavor.slug}</p>
@@ -235,7 +235,7 @@ export default async function HumorFlavorTestPage({ searchParams }: PageProps) {
           </div>
 
           <div className="min-h-0 min-w-0 flex-1">
-            <div className="flex h-full min-h-0 flex-col overflow-y-auto rounded-2xl border border-rose-100 bg-white/90 p-5 shadow-[0_10px_26px_rgba(15,23,42,0.06)] dark:border-rose-400/25 dark:bg-[#171620]/92 dark:shadow-[0_12px_28px_rgba(0,0,0,0.45)] sm:p-6">
+            <div className="admin-surface flex h-full min-h-0 flex-col overflow-y-auto p-5 sm:p-6">
               <TestFlavorPanel
                 selectedFlavorId={selectedFlavor?.id ?? null}
                 selectedFlavorSlug={selectedFlavor?.slug ?? null}

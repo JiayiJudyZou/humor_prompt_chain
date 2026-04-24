@@ -25,7 +25,17 @@ type TestHumorFlavorResponse = {
     selectedFlavorId: number | null;
   };
   error?: string;
+  technicalDetails?: string;
 };
+
+const HUMOR_FLAVOR_WRITTEN_INCORRECTLY_ERROR =
+  "This humor flavor is written incorrectly, so it could not generate captions. Please check the steps in this humor flavor and try again.";
+const HUMOR_FLAVOR_STEP_SETUP_WRONG_ERROR =
+  "This humor flavor is written incorrectly, so it could not generate captions. Please check the steps in this humor flavor and try again.";
+const HUMOR_FLAVOR_SETUP_PROBLEM_ERROR =
+  "This humor flavor is written incorrectly, so it could not generate captions. Please check the steps in this humor flavor and try again.";
+const GENERIC_GENERATION_ERROR =
+  "Something went wrong while generating captions. Please try again.";
 
 function extractCaptions(rawApiResponse: unknown): unknown[] {
   if (Array.isArray(rawApiResponse)) {
@@ -61,6 +71,9 @@ function buildResponse(
     rawApiResponse: input.rawApiResponse ?? null,
     debug: input.debug,
     ...(input.error ? { error: input.error } : {}),
+    ...(input.technicalDetails
+      ? { technicalDetails: input.technicalDetails }
+      : {}),
   };
 }
 
@@ -103,6 +116,62 @@ function parseRequestFormData(formData: FormData): TestHumorFlavorRequest | null
   };
 }
 
+function normalizeRunnerError(error: unknown): {
+  userMessage: string;
+  rawMessage: string;
+} {
+  const rawMessage =
+    error instanceof Error
+      ? error.message
+      : typeof error === "string"
+        ? error
+        : "Unexpected server error";
+
+  const normalized = rawMessage.toLowerCase();
+
+  const hasMissingStepOutput =
+    normalized.includes("no output found for step") ||
+    normalized.includes("missing prior output");
+
+  const hasStepConfigurationSignal =
+    hasMissingStepOutput ||
+    normalized.includes("cannot read properties of undefined") ||
+    normalized.includes("reading 'specificationversion'") ||
+    normalized.includes('reading "specificationversion"') ||
+    ((normalized.includes("502") || normalized.includes("bad gateway")) &&
+      normalized.includes("/pipeline/generate-captions"));
+
+  if (!hasStepConfigurationSignal) {
+    return {
+      userMessage: GENERIC_GENERATION_ERROR,
+      rawMessage,
+    };
+  }
+
+  if (hasMissingStepOutput) {
+    return {
+      userMessage: HUMOR_FLAVOR_STEP_SETUP_WRONG_ERROR,
+      rawMessage,
+    };
+  }
+
+  if (
+    normalized.includes("cannot read properties of undefined") ||
+    normalized.includes("reading 'specificationversion'") ||
+    normalized.includes('reading "specificationversion"')
+  ) {
+    return {
+      userMessage: HUMOR_FLAVOR_WRITTEN_INCORRECTLY_ERROR,
+      rawMessage,
+    };
+  }
+
+  return {
+    userMessage: HUMOR_FLAVOR_SETUP_PROBLEM_ERROR,
+    rawMessage,
+  };
+}
+
 export async function POST(request: Request) {
   let selectedFlavorId: number | null = null;
   let imageId: string | null = null;
@@ -125,7 +194,7 @@ export async function POST(request: Request) {
           imageId: null,
           captions: [],
           rawApiResponse: null,
-          error: "Unauthorized",
+          error: "Please sign in again to run this humor flavor test.",
           debug: {
             usedImageUrl,
             usedUploadedFile,
@@ -154,7 +223,7 @@ export async function POST(request: Request) {
           imageId: null,
           captions: [],
           rawApiResponse: null,
-          error: "Forbidden",
+          error: "You do not have access to run this humor flavor test.",
           debug: {
             usedImageUrl,
             usedUploadedFile,
@@ -180,7 +249,7 @@ export async function POST(request: Request) {
           imageId: null,
           captions: [],
           rawApiResponse: null,
-          error: "Unauthorized",
+          error: "Please sign in again to run this humor flavor test.",
           debug: {
             usedImageUrl,
             usedUploadedFile,
@@ -202,7 +271,7 @@ export async function POST(request: Request) {
           imageId: null,
           captions: [],
           rawApiResponse: null,
-          error: "Invalid form data body",
+          error: "The test request was not formatted correctly. Please try again.",
           debug: {
             usedImageUrl,
             usedUploadedFile,
@@ -224,7 +293,7 @@ export async function POST(request: Request) {
           captions: [],
           rawApiResponse: null,
           error:
-            "Invalid payload. Expected form data with humorFlavorId and either imageUrl or imageFile.",
+            "Please choose a humor flavor and provide an image URL or image file.",
           debug: {
             usedImageUrl,
             usedUploadedFile,
@@ -253,7 +322,7 @@ export async function POST(request: Request) {
           imageId: null,
           captions: [],
           rawApiResponse: null,
-          error: "Humor flavor not found",
+          error: "This humor flavor could not be found.",
           debug: {
             usedImageUrl,
             usedUploadedFile,
@@ -333,8 +402,15 @@ export async function POST(request: Request) {
       })
     );
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unexpected server error";
+    const { userMessage, rawMessage } = normalizeRunnerError(error);
+    console.error("Humor flavor test runner failed", {
+      selectedFlavorId,
+      imageId,
+      usedImageUrl,
+      usedUploadedFile,
+      rawError: rawMessage,
+      normalizedError: userMessage,
+    });
 
     return NextResponse.json(
       buildResponse({
@@ -343,7 +419,8 @@ export async function POST(request: Request) {
         imageId,
         captions: [],
         rawApiResponse: null,
-        error: message,
+        error: userMessage,
+        technicalDetails: rawMessage,
         debug: {
           usedImageUrl,
           usedUploadedFile,

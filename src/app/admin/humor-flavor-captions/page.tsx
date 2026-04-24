@@ -241,7 +241,7 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
       topBar={null}
     >
       <div className="flex h-full min-h-0 flex-1 flex-col gap-5">
-        <section className="rounded-2xl border border-rose-100 bg-white/90 p-5 shadow-[0_10px_26px_rgba(15,23,42,0.06)] dark:border-rose-400/25 dark:bg-[#171620]/92 dark:shadow-[0_12px_28px_rgba(0,0,0,0.45)] sm:p-6">
+        <section className="admin-surface p-5 sm:p-6">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
             Flavor Captions
           </h1>
@@ -250,15 +250,15 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
           </p>
         </section>
 
-        <section className="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-rose-100 bg-white/90 p-5 shadow-[0_10px_26px_rgba(15,23,42,0.06)] dark:border-rose-400/25 dark:bg-[#171620]/92 dark:shadow-[0_12px_28px_rgba(0,0,0,0.45)] sm:p-6">
-          <div className="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-rose-100 pb-4 dark:border-rose-400/20">
+        <section className="admin-surface min-h-0 flex-1 overflow-y-auto p-5 sm:p-6">
+          <div className="admin-divider mb-5 flex flex-wrap items-end justify-between gap-3 border-b pb-4">
             <div>
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 sm:text-xl">Flavors</h2>
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                 Click a humor flavor to read its generated captions.
               </p>
             </div>
-            <p className="rounded-full border border-rose-100 bg-rose-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-slate-600 dark:border-rose-300/30 dark:bg-rose-500/15 dark:text-rose-100">
+            <p className="admin-pill">
               {displayFlavors.length} shown
             </p>
           </div>
@@ -271,20 +271,20 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                 value={selectedFlavorNumericId}
               />
             ) : null}
-            <div className="flex items-center gap-2 rounded-xl border border-rose-100 bg-rose-50/70 p-2 dark:border-rose-300/25 dark:bg-rose-500/10">
+            <div className="admin-surface-subtle flex items-center gap-2 p-2">
               <input
                 type="text"
                 name="q"
                 defaultValue={searchQuery}
                 placeholder="Search humor flavors..."
-                className="h-10 w-full rounded-lg border border-rose-100 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-300 focus:ring-2 focus:ring-rose-200 dark:border-rose-300/30 dark:bg-[#11111a] dark:text-slate-100 dark:placeholder:text-slate-400 dark:focus:border-rose-300/50 dark:focus:ring-rose-400/30"
+                className="admin-input h-10 rounded-lg"
               />
               {searchQuery ? (
                 <Link
                   href={buildCaptionsHref({
                     selectedFlavorId: selectedFlavorNumericId,
                   })}
-                  className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg border border-rose-200 bg-white px-3 text-xs font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-400/30 dark:bg-[#181821] dark:text-slate-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/10"
+                  className="admin-button-secondary h-10 shrink-0 rounded-lg px-3 text-xs uppercase tracking-[0.08em]"
                 >
                   Clear
                 </Link>
@@ -293,7 +293,7 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
           </form>
 
           {flavors.length > 0 && selectedFlavorId && !selectedFlavor ? (
-            <div className="mb-3 rounded-xl border border-dashed border-rose-200 bg-rose-50/70 p-4 dark:border-rose-300/35 dark:bg-rose-500/10">
+            <div className="admin-empty mb-3 p-4 text-left">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500 dark:text-rose-300">
                 Selection Missing
               </p>
@@ -304,14 +304,14 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
           ) : null}
 
           {flavors.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-rose-200 bg-rose-50/70 p-6 text-center dark:border-rose-300/35 dark:bg-rose-500/10">
+            <div className="admin-empty">
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">No humor flavors yet</p>
               <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
                 Create flavors first in the Humor Flavors admin page.
               </p>
             </div>
           ) : displayFlavors.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-rose-200 bg-rose-50/70 p-6 text-center dark:border-rose-300/35 dark:bg-rose-500/10">
+            <div className="admin-empty">
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                 No matching humor flavors
               </p>
@@ -338,10 +338,10 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                   <li key={flavor.id} className="rounded-2xl">
                     <Link
                       href={flavorHref}
-                      className={`block rounded-xl border p-4 transition ${
+                      className={`block rounded-xl p-4 transition duration-200 ${
                         isActive
-                          ? "border-rose-300 bg-gradient-to-r from-rose-100 to-amber-50 shadow-[0_10px_22px_rgba(190,24,93,0.12)] dark:border-rose-300/45 dark:bg-gradient-to-r dark:from-rose-500/20 dark:to-pink-500/14 dark:shadow-[0_10px_24px_rgba(244,63,94,0.24)]"
-                          : "border-rose-100 bg-white hover:border-rose-200 hover:bg-rose-50/70 dark:border-rose-400/20 dark:bg-[#11111a] dark:hover:border-rose-300/35 dark:hover:bg-rose-500/10"
+                          ? "bg-gradient-to-r from-rose-100/90 to-amber-50/80 shadow-lg shadow-rose-900/15 dark:from-rose-500/24 dark:to-pink-500/16 dark:shadow-rose-900/35"
+                          : "bg-white/85 hover:-translate-y-0.5 hover:bg-rose-50/70 hover:shadow-md hover:shadow-rose-900/10 dark:bg-[#11111a] dark:hover:bg-rose-500/10 dark:hover:shadow-rose-900/30"
                       }`}
                       aria-expanded={isActive}
                     >
@@ -357,8 +357,8 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                         <span
                           className={`mt-0.5 inline-flex shrink-0 rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] ${
                             isActive
-                              ? "border-rose-300 bg-white/80 text-slate-700 dark:border-rose-300/45 dark:bg-rose-500/15 dark:text-rose-100"
-                              : "border-rose-200 bg-white text-slate-500 dark:border-rose-400/30 dark:bg-[#181821] dark:text-slate-300"
+                              ? "border-rose-300 bg-white/85 text-slate-700 dark:border-rose-300/45 dark:bg-rose-500/15 dark:text-rose-100"
+                              : "border-rose-200/80 bg-white/85 text-slate-500 dark:border-rose-400/30 dark:bg-[#181821] dark:text-slate-300"
                           }`}
                         >
                           {isActive ? "Collapse" : "Open"}
@@ -367,18 +367,18 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                     </Link>
 
                     {isActive ? (
-                      <div className="-mt-px rounded-b-xl border border-rose-200 bg-white/85 p-4 dark:border-rose-300/30 dark:bg-[#11111a]/90 sm:p-5">
+                      <div className="-mt-px rounded-b-xl bg-white/70 p-4 dark:bg-[#11111a]/80 sm:p-5">
                         <div className="mb-4 flex items-center justify-between gap-3">
                           <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                             Captions for {flavor.slug}
                           </p>
-                          <p className="rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-600 dark:border-rose-300/30 dark:bg-rose-500/15 dark:text-rose-100">
+                          <p className="admin-pill px-2.5 py-1 tracking-[0.08em]">
                             {captions.length} captions
                           </p>
                         </div>
 
                         {captions.length === 0 ? (
-                          <div className="rounded-xl border border-dashed border-rose-200 bg-rose-50/70 p-5 text-center dark:border-rose-300/35 dark:bg-rose-500/10">
+                          <div className="admin-empty p-5">
                             <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
                               No captions found for this humor flavor yet.
                             </p>
@@ -396,7 +396,7 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                               return (
                                 <li
                                   key={captionRow.id}
-                                  className="rounded-xl border border-rose-100 bg-gradient-to-r from-white to-rose-50/40 p-4 shadow-[0_6px_16px_rgba(15,23,42,0.04)] dark:border-rose-400/20 dark:bg-gradient-to-r dark:from-[#13131c] dark:to-[#1f1622] dark:shadow-[0_8px_20px_rgba(0,0,0,0.38)]"
+                                  className="admin-surface-subtle p-4"
                                 >
                                   <p className="text-xs font-semibold uppercase tracking-[0.1em] text-rose-500 dark:text-rose-300">
                                     Caption {captionStartIndex + index + 1}
@@ -406,15 +406,15 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                                   </p>
                                   <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-300">
                                     {formattedCreatedDate ? (
-                                      <span className="rounded-full border border-rose-100 bg-white px-2 py-1 dark:border-rose-300/30 dark:bg-[#0f0f17]">
+                                      <span className="admin-pill normal-case tracking-normal">
                                         {formattedCreatedDate}
                                       </span>
                                     ) : null}
-                                    <span className="rounded-full border border-rose-100 bg-white px-2 py-1 dark:border-rose-300/30 dark:bg-[#0f0f17]">
+                                    <span className="admin-pill normal-case tracking-normal">
                                       id {captionRow.id}
                                     </span>
                                     {visibilityStatus ? (
-                                      <span className="rounded-full border border-rose-100 bg-white px-2 py-1 dark:border-rose-300/30 dark:bg-[#0f0f17]">
+                                      <span className="admin-pill normal-case tracking-normal">
                                         {visibilityStatus}
                                       </span>
                                     ) : null}
@@ -425,7 +425,7 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                             </ul>
 
                             {totalCaptionPages > 1 ? (
-                              <div className="mt-4 flex items-center justify-center gap-2 border-t border-rose-100 pt-4 dark:border-rose-400/20">
+                              <div className="admin-divider mt-4 flex items-center justify-center gap-2 border-t pt-4">
                                 {currentCaptionPage > 1 ? (
                                   <Link
                                     href={buildCaptionsHref({
@@ -433,17 +433,17 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                                       page: currentCaptionPage - 1,
                                       q: searchQuery || undefined,
                                     })}
-                                    className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-400/30 dark:bg-[#181821] dark:text-slate-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/10"
+                                    className="admin-button-secondary min-w-[90px] rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.1em]"
                                   >
                                     Previous
                                   </Link>
                                 ) : (
-                                  <span className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-100 bg-rose-50/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400 dark:border-rose-400/20 dark:bg-rose-500/10 dark:text-slate-400">
+                                  <span className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-100/70 bg-rose-50/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400 dark:border-rose-400/20 dark:bg-rose-500/10 dark:text-slate-400">
                                     Previous
                                   </span>
                                 )}
 
-                                <p className="rounded-full border border-rose-100 bg-rose-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 dark:border-rose-300/30 dark:bg-rose-500/15 dark:text-rose-100">
+                                <p className="admin-pill px-3 py-1.5 tracking-[0.12em]">
                                   Page {currentCaptionPage} / {totalCaptionPages}
                                 </p>
 
@@ -454,12 +454,12 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                                       page: currentCaptionPage + 1,
                                       q: searchQuery || undefined,
                                     })}
-                                    className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-400/30 dark:bg-[#181821] dark:text-slate-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/10"
+                                    className="admin-button-secondary min-w-[90px] rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.1em]"
                                   >
                                     Next
                                   </Link>
                                 ) : (
-                                  <span className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-100 bg-rose-50/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400 dark:border-rose-400/20 dark:bg-rose-500/10 dark:text-slate-400">
+                                  <span className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-100/70 bg-rose-50/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400 dark:border-rose-400/20 dark:bg-rose-500/10 dark:text-slate-400">
                                     Next
                                   </span>
                                 )}

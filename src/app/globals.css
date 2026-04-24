@@ -7,6 +7,7 @@
   --muted-foreground: #586174;
   --card: #fffdfd;
   --card-border: #f1dbe0;
+  --admin-ring: rgba(244, 63, 94, 0.25);
 }
 
 @theme inline {
@@ -33,4 +34,42 @@ body {
     radial-gradient(circle at 12% 8%, rgba(244, 63, 94, 0.2) 0%, transparent 36%),
     radial-gradient(circle at 85% 12%, rgba(236, 72, 153, 0.14) 0%, transparent 34%),
     linear-gradient(165deg, #08090f 0%, #0f1018 45%, #13121a 100%);
+}
+
+@layer components {
+  .admin-surface {
+    @apply rounded-2xl border border-rose-100/65 bg-white/78 shadow-xl shadow-slate-900/5 backdrop-blur-xl dark:border-rose-300/20 dark:bg-[#14131d]/75 dark:shadow-black/35;
+  }
+
+  .admin-surface-subtle {
+    @apply rounded-2xl border border-rose-100/55 bg-gradient-to-b from-white/75 to-rose-50/35 shadow-lg shadow-rose-900/5 backdrop-blur-lg dark:border-rose-300/20 dark:from-[#1a1622]/70 dark:to-[#17141f]/72 dark:shadow-black/30;
+  }
+
+  .admin-divider {
+    @apply border-rose-100/75 dark:border-rose-300/20;
+  }
+
+  .admin-pill {
+    @apply inline-flex items-center rounded-full border border-rose-200/70 bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600 dark:border-rose-300/30 dark:bg-rose-500/15 dark:text-rose-100;
+  }
+
+  .admin-input {
+    @apply w-full rounded-xl border border-rose-200/70 bg-white/90 px-3 py-2.5 text-sm text-slate-900 shadow-[inset_0_1px_2px_rgba(15,23,42,0.04)] outline-none transition duration-200 placeholder:text-slate-400 focus:border-rose-300 focus:ring-2 focus:ring-rose-200/70 dark:border-rose-300/35 dark:bg-[#10101a] dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-rose-300/60 dark:focus:ring-rose-400/30;
+  }
+
+  .admin-button-primary {
+    @apply inline-flex items-center justify-center rounded-xl border border-rose-300/70 bg-gradient-to-r from-rose-100/90 to-amber-50/90 px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-lg shadow-rose-900/10 transition duration-200 hover:-translate-y-0.5 hover:from-rose-200/95 hover:to-amber-100/95 hover:shadow-xl hover:shadow-rose-900/15 disabled:cursor-not-allowed disabled:opacity-60 dark:border-rose-300/35 dark:from-rose-500/25 dark:to-pink-500/14 dark:text-rose-100 dark:shadow-rose-900/35 dark:hover:from-rose-500/35 dark:hover:to-pink-500/24;
+  }
+
+  .admin-button-secondary {
+    @apply inline-flex items-center justify-center rounded-xl border border-rose-200/80 bg-white/88 px-3 py-2 text-sm font-semibold text-slate-700 transition duration-200 hover:-translate-y-0.5 hover:border-rose-300 hover:bg-rose-50/90 dark:border-rose-300/30 dark:bg-[#11111a] dark:text-slate-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/12;
+  }
+
+  .admin-button-danger {
+    @apply inline-flex items-center justify-center rounded-xl border border-rose-300/75 bg-rose-50/90 px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-rose-700 transition duration-200 hover:-translate-y-0.5 hover:border-rose-400 hover:bg-rose-100 dark:border-rose-300/45 dark:bg-rose-500/15 dark:text-rose-100 dark:hover:border-rose-300/60 dark:hover:bg-rose-500/25;
+  }
+
+  .admin-empty {
+    @apply rounded-2xl border border-dashed border-rose-200/80 bg-rose-50/60 p-6 text-center dark:border-rose-300/35 dark:bg-rose-500/10;
+  }
 }

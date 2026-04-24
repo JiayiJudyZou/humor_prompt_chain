@@ -114,7 +114,7 @@ export default function FlavorStepComparisonSection({
 
   if (!compareFlavor) {
     return (
-      <section className="space-y-3 rounded-2xl border border-rose-100 bg-white p-4 dark:border-rose-400/25 dark:bg-[#171620]/92 sm:p-5">
+      <section className="admin-surface space-y-3 p-4 sm:p-5">
         <div>
           <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Debug Step View</h4>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
@@ -123,7 +123,7 @@ export default function FlavorStepComparisonSection({
         </div>
 
         {orderedSelectedSteps.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-rose-200 bg-rose-50/70 px-4 py-3 text-sm text-slate-600 dark:border-rose-300/35 dark:bg-rose-500/10 dark:text-slate-300">
+          <p className="admin-empty px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
             This flavor has no steps configured.
           </p>
         ) : (
@@ -131,7 +131,7 @@ export default function FlavorStepComparisonSection({
             {orderedSelectedSteps.map((step) => (
               <li
                 key={step.id}
-                className="rounded-xl border border-rose-100 bg-rose-50/30 p-3 dark:border-rose-400/20 dark:bg-rose-500/8 sm:p-4"
+                className="admin-surface-subtle p-3 sm:p-4"
               >
                 <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                   Step {step.order_by} (id: {step.id})
@@ -159,7 +159,7 @@ export default function FlavorStepComparisonSection({
   const pairs = buildStepPairs(orderedSelectedSteps, compareSteps);
 
   return (
-    <section className="space-y-3 rounded-2xl border border-rose-100 bg-white p-4 dark:border-rose-400/25 dark:bg-[#171620]/92 sm:p-5">
+    <section className="admin-surface space-y-3 p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Comparison Debug View</h4>
@@ -171,7 +171,7 @@ export default function FlavorStepComparisonSection({
       </div>
 
       {pairs.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-rose-200 bg-rose-50/70 px-4 py-3 text-sm text-slate-600 dark:border-rose-300/35 dark:bg-rose-500/10 dark:text-slate-300">
+        <p className="admin-empty px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
           Neither flavor has steps configured.
         </p>
       ) : (
@@ -179,7 +179,7 @@ export default function FlavorStepComparisonSection({
           {pairs.map((pair) => (
             <li
               key={`${pair.orderBy}-${pair.rowIndex}`}
-              className="rounded-xl border border-rose-100 bg-rose-50/30 p-3 dark:border-rose-400/20 dark:bg-rose-500/8 sm:p-4"
+              className="admin-surface-subtle p-3 sm:p-4"
             >
               <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                 Step {pair.orderBy}

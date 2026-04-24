@@ -14,6 +14,7 @@ type TestFlavorResponse = {
     selectedFlavorId: number | null;
   } | null;
   error?: string;
+  technicalDetails?: string;
 };
 
 type TestFlavorPanelProps = {
@@ -99,15 +100,30 @@ function extractCaptionLikeArray(value: unknown): unknown[] {
   return [];
 }
 
-function readErrorMessage(value: unknown): string {
+type ParsedErrorMessage = {
+  message: string;
+  technicalDetails?: string;
+};
+
+function readErrorMessage(value: unknown): ParsedErrorMessage {
   if (!value || typeof value !== "object") {
-    return "Failed to run humor flavor test.";
+    return {
+      message: "Something went wrong while running this humor flavor test. Please try again.",
+    };
   }
 
   const record = value as Record<string, unknown>;
-  return typeof record.error === "string" && record.error.trim()
-    ? record.error
-    : "Failed to run humor flavor test.";
+  const message =
+    typeof record.error === "string" && record.error.trim()
+      ? record.error
+      : "Something went wrong while running this humor flavor test. Please try again.";
+
+  const technicalDetails =
+    typeof record.technicalDetails === "string" && record.technicalDetails.trim()
+      ? record.technicalDetails
+      : undefined;
+
+  return { message, technicalDetails };
 }
 
 export default function TestFlavorPanel({
@@ -117,7 +133,7 @@ export default function TestFlavorPanel({
   const [imageUrl, setImageUrl] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ParsedErrorMessage | null>(null);
   const [result, setResult] = useState<TestFlavorResponse | null>(null);
 
   const finalCaptions = useMemo(
@@ -151,13 +167,13 @@ export default function TestFlavorPanel({
     setResult(null);
 
     if (!selectedFlavorId) {
-      setError("Select a humor flavor before running the test.");
+      setError({ message: "Please select a humor flavor before running the test." });
       return;
     }
 
     const trimmedImageUrl = imageUrl.trim();
     if (!trimmedImageUrl && !imageFile) {
-      setError("Provide an image URL or upload an image file.");
+      setError({ message: "Please add an image URL or upload an image file." });
       return;
     }
 
@@ -186,14 +202,16 @@ export default function TestFlavorPanel({
 
       setResult(body as TestFlavorResponse);
     } catch {
-      setError("Request failed. Please try again.");
+      setError({
+        message: "Something went wrong while sending your request. Please try again.",
+      });
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <section className="rounded-2xl border border-rose-100 bg-white/90 p-5 shadow-[0_10px_26px_rgba(15,23,42,0.06)] dark:border-rose-400/25 dark:bg-[#171620]/92 dark:shadow-[0_12px_28px_rgba(0,0,0,0.45)] sm:p-6">
+    <section className="admin-surface p-5 sm:p-6">
       <div className="mb-4">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500 dark:text-rose-300">
           Test Runner
@@ -210,7 +228,7 @@ export default function TestFlavorPanel({
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="rounded-2xl border border-rose-100 bg-rose-50/40 p-4 dark:border-rose-400/20 dark:bg-rose-500/8 sm:p-5">
+        <div className="admin-surface-subtle p-4 sm:p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-500 dark:text-rose-300">
             Image Input
           </p>
@@ -219,7 +237,7 @@ export default function TestFlavorPanel({
           </p>
 
           <div className="mt-4 space-y-4">
-            <div className="rounded-xl border border-rose-100 bg-white p-3 dark:border-rose-300/25 dark:bg-[#11111a]">
+            <div className="rounded-xl bg-white/90 p-3 shadow-sm shadow-rose-900/5 dark:bg-[#11111a]">
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
                 Option 1: Image URL
               </p>
@@ -235,7 +253,7 @@ export default function TestFlavorPanel({
                 value={imageUrl}
                 onChange={(event) => setImageUrl(event.target.value)}
                 placeholder="https://example.com/image.jpg"
-                className="mt-2 w-full rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm text-slate-800 shadow-[inset_0_1px_2px_rgba(15,23,42,0.04)] focus:border-rose-300 focus:outline-none dark:border-rose-300/35 dark:bg-[#0f0f17] dark:text-slate-100 dark:focus:border-rose-300/55"
+                className="admin-input mt-2"
               />
             </div>
 
@@ -247,7 +265,7 @@ export default function TestFlavorPanel({
               <div className="h-px flex-1 bg-rose-100 dark:bg-rose-400/25" />
             </div>
 
-            <div className="rounded-xl border border-rose-100 bg-white p-3 dark:border-rose-300/25 dark:bg-[#11111a]">
+            <div className="rounded-xl bg-white/90 p-3 shadow-sm shadow-rose-900/5 dark:bg-[#11111a]">
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
                 Option 2: Upload File
               </p>
@@ -265,7 +283,7 @@ export default function TestFlavorPanel({
                   const nextFile = event.target.files?.[0] ?? null;
                   setImageFile(nextFile);
                 }}
-                className="mt-2 w-full rounded-xl border border-rose-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-[inset_0_1px_2px_rgba(15,23,42,0.04)] file:mr-3 file:rounded-lg file:border-0 file:bg-rose-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-rose-700 hover:file:bg-rose-200 focus:border-rose-300 focus:outline-none dark:border-rose-300/35 dark:bg-[#0f0f17] dark:text-slate-200 dark:file:bg-rose-500/25 dark:file:text-rose-100 dark:hover:file:bg-rose-500/35 dark:focus:border-rose-300/55"
+                className="admin-input mt-2 text-slate-700 dark:text-slate-200 file:mr-3 file:rounded-lg file:border-0 file:bg-rose-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-rose-700 hover:file:bg-rose-200 dark:file:bg-rose-500/25 dark:file:text-rose-100 dark:hover:file:bg-rose-500/35"
               />
               {imageFile ? (
                 <p className="mt-2 text-xs text-slate-600 dark:text-slate-300">Selected: {imageFile.name}</p>
@@ -277,21 +295,43 @@ export default function TestFlavorPanel({
         <button
           type="submit"
           disabled={!canRun}
-          className="inline-flex items-center rounded-xl border border-rose-300 bg-gradient-to-r from-rose-100 to-amber-50 px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-[0_8px_18px_rgba(190,24,93,0.10)] transition hover:from-rose-200 hover:to-amber-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-rose-300/35 dark:bg-gradient-to-r dark:from-rose-500/25 dark:to-pink-500/14 dark:text-rose-100 dark:shadow-[0_8px_20px_rgba(244,63,94,0.24)] dark:hover:from-rose-500/35 dark:hover:to-pink-500/24"
+          className="admin-button-primary"
         >
           {isLoading ? "Running..." : "Run Humor Flavor"}
         </button>
       </form>
 
       {error ? (
-        <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-300/40 dark:bg-rose-500/12 dark:text-rose-200">
-          {error}
+        <div className="mt-4 rounded-xl border border-rose-200/80 bg-rose-50/90 px-4 py-3 text-sm text-rose-700 dark:border-rose-300/40 dark:bg-rose-500/12 dark:text-rose-200">
+          {error.technicalDetails ? (
+            <>
+              <p className="font-semibold">
+                This humor flavor could not generate captions.
+              </p>
+              <p className="mt-1">
+                This humor flavor is written incorrectly. Please check the steps
+                in this humor flavor and try again.
+              </p>
+            </>
+          ) : (
+            <p>{error.message}</p>
+          )}
+          {error.technicalDetails ? (
+            <details className="mt-2 rounded-lg border border-rose-200/70 bg-white/70 px-3 py-2 text-xs text-rose-800 dark:border-rose-300/35 dark:bg-[#12101a]/70 dark:text-rose-100">
+              <summary className="cursor-pointer font-semibold text-rose-700 dark:text-rose-200">
+                Show technical details
+              </summary>
+              <pre className="mt-2 whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-rose-700 dark:text-rose-100">
+                {error.technicalDetails}
+              </pre>
+            </details>
+          ) : null}
         </div>
       ) : null}
 
       {result ? (
         <div className="mt-5 space-y-4">
-          <section className="rounded-2xl border border-rose-200 bg-gradient-to-br from-rose-50 via-amber-50/60 to-white p-4 shadow-[0_10px_22px_rgba(190,24,93,0.10)] dark:border-rose-300/30 dark:bg-gradient-to-br dark:from-[#191521] dark:via-[#221821] dark:to-[#15151e] dark:shadow-[0_10px_24px_rgba(244,63,94,0.2)] sm:p-5">
+          <section className="admin-surface-subtle p-4 sm:p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-rose-600 dark:text-rose-300">
               Final Captions
             </p>
@@ -300,7 +340,7 @@ export default function TestFlavorPanel({
                 {finalCaptions.map((caption, index) => (
                   <li
                     key={`${index}-${caption}`}
-                    className="rounded-xl border border-rose-100 bg-white px-3.5 py-2.5 text-sm text-slate-800 dark:border-rose-300/25 dark:bg-[#0f0f17] dark:text-slate-100"
+                    className="rounded-xl bg-white/90 px-3.5 py-2.5 text-sm text-slate-800 shadow-sm shadow-rose-900/5 dark:bg-[#0f0f17] dark:text-slate-100"
                   >
                     <span className="mr-2 text-xs font-semibold text-rose-500 dark:text-rose-300">
                       {index + 1}.
@@ -310,7 +350,7 @@ export default function TestFlavorPanel({
                 ))}
               </ol>
             ) : (
-              <p className="mt-3 rounded-xl border border-rose-100 bg-white px-3.5 py-2.5 text-sm text-slate-600 dark:border-rose-300/25 dark:bg-[#0f0f17] dark:text-slate-300">
+              <p className="mt-3 rounded-xl bg-white/90 px-3.5 py-2.5 text-sm text-slate-600 shadow-sm shadow-rose-900/5 dark:bg-[#0f0f17] dark:text-slate-300">
                 No readable captions were returned.
               </p>
             )}

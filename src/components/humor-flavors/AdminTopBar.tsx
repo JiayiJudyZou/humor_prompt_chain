@@ -12,10 +12,14 @@ export default function AdminTopBar({
   rightSlot,
 }: AdminTopBarProps) {
   return (
-    <header className="rounded-2xl border border-rose-100 bg-white/88 p-5 shadow-[0_14px_34px_rgba(15,23,42,0.08)] backdrop-blur-sm dark:border-rose-400/25 dark:bg-[#15141c]/88 dark:shadow-[0_16px_34px_rgba(0,0,0,0.45)] sm:p-6">
+    <header className="admin-surface relative overflow-hidden p-5 sm:p-6">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute right-8 top-0 h-24 w-36 rounded-full bg-rose-200/35 blur-3xl dark:bg-rose-500/20"
+      />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+        <div className="relative">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
             Admin Workspace
           </p>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl">

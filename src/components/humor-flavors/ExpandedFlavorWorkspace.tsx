@@ -54,8 +54,8 @@ export default function ExpandedFlavorWorkspace({
   const [showEditFlavorForm, setShowEditFlavorForm] = useState(false);
 
   return (
-    <div className="mt-3 rounded-2xl border border-rose-200 bg-gradient-to-b from-white via-rose-50/35 to-amber-50/40 p-4 shadow-[0_12px_28px_rgba(15,23,42,0.08)] dark:border-rose-300/30 dark:bg-gradient-to-b dark:from-[#13131c] dark:via-[#1a1521] dark:to-[#1d141f] dark:shadow-[0_14px_30px_rgba(0,0,0,0.5)] sm:p-5">
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-rose-100 pb-4 dark:border-rose-400/20">
+    <div className="admin-surface-subtle mt-3 p-4 sm:p-5">
+      <div className="admin-divider mb-4 flex flex-wrap items-start justify-between gap-3 border-b pb-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-500 dark:text-rose-300">
             Flavor Workspace
@@ -79,14 +79,14 @@ export default function ExpandedFlavorWorkspace({
             <button
               type="button"
               onClick={() => setShowCreateStepForm(true)}
-              className="inline-flex items-center rounded-xl border border-rose-300 bg-gradient-to-r from-rose-100 to-amber-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-slate-800 shadow-[0_8px_18px_rgba(190,24,93,0.10)] transition hover:from-rose-200 hover:to-amber-100 dark:border-rose-300/35 dark:bg-gradient-to-r dark:from-rose-500/25 dark:to-pink-500/14 dark:text-rose-100 dark:shadow-[0_8px_20px_rgba(244,63,94,0.24)] dark:hover:from-rose-500/35 dark:hover:to-pink-500/24"
+              className="admin-button-primary px-3 py-2 text-xs uppercase tracking-[0.08em]"
             >
               Create Step
             </button>
             <button
               type="button"
               onClick={() => setShowEditFlavorForm(true)}
-              className="inline-flex items-center rounded-xl border border-rose-300 bg-gradient-to-r from-rose-100 to-amber-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-slate-800 shadow-[0_8px_18px_rgba(190,24,93,0.10)] transition hover:from-rose-200 hover:to-amber-100 dark:border-rose-300/35 dark:bg-gradient-to-r dark:from-rose-500/25 dark:to-pink-500/14 dark:text-rose-100 dark:shadow-[0_8px_20px_rgba(244,63,94,0.24)] dark:hover:from-rose-500/35 dark:hover:to-pink-500/24"
+              className="admin-button-primary px-3 py-2 text-xs uppercase tracking-[0.08em]"
             >
               Edit Flavor
             </button>
@@ -94,7 +94,7 @@ export default function ExpandedFlavorWorkspace({
             <DeleteFlavorHeaderAction humorFlavorId={humorFlavorId} />
             <Link
               href="/admin/humor-flavors"
-              className="inline-flex items-center rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-300/35 dark:bg-[#11111a] dark:text-rose-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/15"
+              className="admin-button-secondary px-3 py-2 text-xs uppercase tracking-[0.08em]"
             >
               Collapse
             </Link>
@@ -108,17 +108,17 @@ export default function ExpandedFlavorWorkspace({
             flavor={flavor}
             onCancel={() => setShowEditFlavorForm(false)}
             onSubmitSuccess={() => setShowEditFlavorForm(false)}
-            className="rounded-xl border border-rose-100 bg-white/95 p-4 shadow-none dark:border-rose-400/25 dark:bg-[#171620]/95"
+            className="admin-surface p-4 shadow-none"
           />
         ) : null}
 
         {showCreateStepForm ? (
-          <section className="rounded-xl border border-rose-100 bg-rose-50/35 p-3 dark:border-rose-400/20 dark:bg-rose-500/8 sm:p-4">
+          <section className="admin-surface-subtle p-3 sm:p-4">
             <div className="mb-3 flex justify-end">
               <button
                 type="button"
                 onClick={() => setShowCreateStepForm(false)}
-                className="inline-flex items-center rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 dark:border-rose-300/30 dark:bg-[#10101a] dark:text-slate-200 dark:hover:border-rose-300/45 dark:hover:bg-rose-500/12"
+                className="admin-button-secondary rounded-lg px-3 py-1.5 text-[11px] uppercase tracking-[0.08em]"
               >
                 Cancel
               </button>
@@ -131,7 +131,7 @@ export default function ExpandedFlavorWorkspace({
               llmOutputTypes={llmOutputTypes}
               llmModels={llmModels}
               onSubmitSuccess={() => setShowCreateStepForm(false)}
-              className="rounded-xl border border-rose-100 bg-white/95 p-4 shadow-none dark:border-rose-400/25 dark:bg-[#171620]/95"
+              className="admin-surface p-4 shadow-none"
             />
           </section>
         ) : null}

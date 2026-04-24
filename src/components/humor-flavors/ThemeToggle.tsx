@@ -28,10 +28,10 @@ export default function ThemeToggle() {
   );
 
   return (
-    <div className="relative grid h-10 w-full grid-cols-3 rounded-xl border border-rose-200/90 bg-gradient-to-b from-rose-50/90 to-orange-50/80 p-1 shadow-[0_8px_20px_rgba(190,24,93,0.12)] dark:border-rose-300/30 dark:from-[#241924] dark:to-[#17151f] dark:shadow-[0_10px_24px_rgba(0,0,0,0.45)]">
+    <div className="relative grid h-10 w-full grid-cols-3 rounded-xl border border-rose-200/80 bg-gradient-to-b from-rose-50/90 to-white/80 p-1 shadow-md shadow-rose-900/10 dark:border-rose-300/30 dark:from-[#241924] dark:to-[#17151f] dark:shadow-black/45">
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-1 left-1 top-1 w-[calc((100%-0.5rem)/3)] rounded-lg border border-rose-200/80 bg-white shadow-[0_6px_14px_rgba(15,23,42,0.08)] transition-transform duration-200 ease-out dark:border-rose-300/30 dark:bg-[#0f0f17] dark:shadow-[0_8px_16px_rgba(0,0,0,0.5)]"
+        className="pointer-events-none absolute bottom-1 left-1 top-1 w-[calc((100%-0.5rem)/3)] rounded-lg border border-rose-200/80 bg-white shadow-sm transition-transform duration-200 ease-out dark:border-rose-300/30 dark:bg-[#0f0f17] dark:shadow-black/50"
         style={{ transform: `translateX(${activeIndex * 100}%)` }}
       />
 
@@ -44,7 +44,7 @@ export default function ThemeToggle() {
             type="button"
             onClick={() => setTheme(value)}
             aria-pressed={isActive}
-            className={`relative z-10 rounded-lg px-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300 focus-visible:ring-offset-1 focus-visible:ring-offset-rose-50 dark:focus-visible:ring-rose-300/70 dark:focus-visible:ring-offset-[#17151f] ${
+            className={`relative z-10 rounded-lg px-2 text-xs font-semibold transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300 focus-visible:ring-offset-1 focus-visible:ring-offset-rose-50 dark:focus-visible:ring-rose-300/70 dark:focus-visible:ring-offset-[#17151f] ${
               isActive
                 ? "text-slate-900 dark:text-rose-50"
                 : "text-slate-600 hover:text-slate-800 dark:text-slate-300 dark:hover:text-rose-100"
