@@ -16,7 +16,7 @@ type PageProps = {
 type CaptionRow = Awaited<
   ReturnType<typeof getCaptionsByHumorFlavorId>
 >[number];
-const CAPTIONS_PER_PAGE = 10;
+const FLAVORS_PER_PAGE = 20;
 
 function pickString(...values: Array<unknown>): string | null {
   for (const value of values) {
@@ -167,7 +167,7 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
   const { user, profile } = await requirePromptChainAdmin();
   const params = await searchParams;
   const selectedFlavorId = parseSelectedFlavorId(params.selectedFlavorId);
-  const requestedPage = parsePageNumber(params.page);
+  const requestedFlavorPage = parsePageNumber(params.page);
   const searchQuery = parseSearchQuery(params.q);
   const flavors = await getHumorFlavors();
   const selectedFlavor =
@@ -180,28 +180,19 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
   const filteredFlavors = flavors.filter((flavor) =>
     flavorMatchesQuery(flavor, searchQuery)
   );
-  const displayFlavors =
-    selectedFlavor &&
-    !filteredFlavors.some(
-      (flavor) => parseFlavorId(flavor.id) === selectedFlavorNumericId
-    )
-      ? [selectedFlavor, ...filteredFlavors]
-      : filteredFlavors;
+  const totalFlavorPages = Math.max(
+    1,
+    Math.ceil(filteredFlavors.length / FLAVORS_PER_PAGE)
+  );
+  const currentFlavorPage = Math.min(requestedFlavorPage, totalFlavorPages);
+  const flavorStartIndex = (currentFlavorPage - 1) * FLAVORS_PER_PAGE;
+  const flavorEndIndex = flavorStartIndex + FLAVORS_PER_PAGE;
+  const paginatedFlavors = filteredFlavors.slice(flavorStartIndex, flavorEndIndex);
 
   const captions =
     selectedFlavorNumericId === null
       ? []
       : await getCaptionsByHumorFlavorId(selectedFlavorNumericId);
-  const totalCaptionPages = Math.max(
-    1,
-    Math.ceil(captions.length / CAPTIONS_PER_PAGE)
-  );
-  const currentCaptionPage = Math.min(requestedPage, totalCaptionPages);
-  const captionStartIndex = (currentCaptionPage - 1) * CAPTIONS_PER_PAGE;
-  const paginatedCaptions = captions.slice(
-    captionStartIndex,
-    captionStartIndex + CAPTIONS_PER_PAGE
-  );
 
   const adminEmail = user.email ?? "unknown-admin";
   const userMetadata =
@@ -259,7 +250,7 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
               </p>
             </div>
             <p className="admin-pill">
-              {displayFlavors.length} shown
+              {paginatedFlavors.length} shown
             </p>
           </div>
 
@@ -310,7 +301,7 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                 Create flavors first in the Humor Flavors admin page.
               </p>
             </div>
-          ) : displayFlavors.length === 0 ? (
+          ) : filteredFlavors.length === 0 ? (
             <div className="admin-empty">
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                 No matching humor flavors
@@ -321,16 +312,20 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
             </div>
           ) : (
             <ul className="space-y-3">
-              {displayFlavors.map((flavor) => {
+              {paginatedFlavors.map((flavor) => {
                 const flavorId = parseFlavorId(flavor.id);
                 const isActive =
                   flavorId !== null &&
                   selectedFlavorNumericId !== null &&
                   flavorId === selectedFlavorNumericId;
                 const flavorHref = isActive
-                  ? buildCaptionsHref({ q: searchQuery || undefined })
+                  ? buildCaptionsHref({
+                      page: currentFlavorPage,
+                      q: searchQuery || undefined,
+                    })
                   : buildCaptionsHref({
                       selectedFlavorId: flavor.id,
+                      page: currentFlavorPage,
                       q: searchQuery || undefined,
                     });
 
@@ -386,7 +381,7 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                         ) : (
                           <>
                             <ul className="space-y-2.5">
-                              {paginatedCaptions.map((captionRow, index) => {
+                              {captions.map((captionRow, index) => {
                               const captionText = readCaptionText(captionRow);
                               const formattedCreatedDate = formatUtcDate(
                                 captionRow.created_datetime_utc
@@ -399,7 +394,7 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                                   className="admin-surface-subtle p-4"
                                 >
                                   <p className="text-xs font-semibold uppercase tracking-[0.1em] text-rose-500 dark:text-rose-300">
-                                    Caption {captionStartIndex + index + 1}
+                                    Caption {index + 1}
                                   </p>
                                   <p className="mt-2 whitespace-pre-wrap text-[15px] leading-7 text-slate-900 dark:text-slate-100">
                                     {captionText ?? "No readable caption text field found."}
@@ -423,48 +418,6 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
                               );
                               })}
                             </ul>
-
-                            {totalCaptionPages > 1 ? (
-                              <div className="admin-divider mt-4 flex items-center justify-center gap-2 border-t pt-4">
-                                {currentCaptionPage > 1 ? (
-                                  <Link
-                                    href={buildCaptionsHref({
-                                      selectedFlavorId: selectedFlavorNumericId,
-                                      page: currentCaptionPage - 1,
-                                      q: searchQuery || undefined,
-                                    })}
-                                    className="admin-button-secondary min-w-[90px] rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.1em]"
-                                  >
-                                    Previous
-                                  </Link>
-                                ) : (
-                                  <span className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-100/70 bg-rose-50/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400 dark:border-rose-400/20 dark:bg-rose-500/10 dark:text-slate-400">
-                                    Previous
-                                  </span>
-                                )}
-
-                                <p className="admin-pill px-3 py-1.5 tracking-[0.12em]">
-                                  Page {currentCaptionPage} / {totalCaptionPages}
-                                </p>
-
-                                {currentCaptionPage < totalCaptionPages ? (
-                                  <Link
-                                    href={buildCaptionsHref({
-                                      selectedFlavorId: selectedFlavorNumericId,
-                                      page: currentCaptionPage + 1,
-                                      q: searchQuery || undefined,
-                                    })}
-                                    className="admin-button-secondary min-w-[90px] rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.1em]"
-                                  >
-                                    Next
-                                  </Link>
-                                ) : (
-                                  <span className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-100/70 bg-rose-50/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400 dark:border-rose-400/20 dark:bg-rose-500/10 dark:text-slate-400">
-                                    Next
-                                  </span>
-                                )}
-                              </div>
-                            ) : null}
                           </>
                         )}
                       </div>
@@ -474,6 +427,48 @@ export default async function HumorFlavorCaptionsPage({ searchParams }: PageProp
               })}
             </ul>
           )}
+
+          {filteredFlavors.length > FLAVORS_PER_PAGE ? (
+            <div className="admin-divider mt-4 flex items-center justify-center gap-2 border-t pt-4">
+              {currentFlavorPage > 1 ? (
+                <Link
+                  href={buildCaptionsHref({
+                    selectedFlavorId: selectedFlavorNumericId,
+                    page: currentFlavorPage - 1,
+                    q: searchQuery || undefined,
+                  })}
+                  className="admin-button-secondary min-w-[90px] rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.1em]"
+                >
+                  Previous
+                </Link>
+              ) : (
+                <span className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-100/70 bg-rose-50/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400 dark:border-rose-400/20 dark:bg-rose-500/10 dark:text-slate-400">
+                  Previous
+                </span>
+              )}
+
+              <p className="admin-pill px-3 py-1.5 tracking-[0.12em]">
+                Page {currentFlavorPage} / {totalFlavorPages}
+              </p>
+
+              {currentFlavorPage < totalFlavorPages ? (
+                <Link
+                  href={buildCaptionsHref({
+                    selectedFlavorId: selectedFlavorNumericId,
+                    page: currentFlavorPage + 1,
+                    q: searchQuery || undefined,
+                  })}
+                  className="admin-button-secondary min-w-[90px] rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.1em]"
+                >
+                  Next
+                </Link>
+              ) : (
+                <span className="inline-flex min-w-[90px] items-center justify-center rounded-full border border-rose-100/70 bg-rose-50/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400 dark:border-rose-400/20 dark:bg-rose-500/10 dark:text-slate-400">
+                  Next
+                </span>
+              )}
+            </div>
+          ) : null}
         </section>
       </div>
     </AdminShell>
